@@ -18,6 +18,16 @@ const manageRouter = {
         noCache: true,
         perms: ['POST /api/v1/branch/list', 'GET /api/v1/branch/del', 'POST /api/v1/branch/add', 'POST /api/v1/branch/edit', 'POST /api/v1/auth_rule/all']
       }
+    },
+    {
+      path: '/vocational',
+      name: 'Vuevocational',
+      component: () => import('@/views/manage/vocational'),
+      meta: {
+        title: '业务办理',
+        noCache: true,
+        perms: ['POST /api/v1/branch/list', 'GET /api/v1/branch/del', 'POST /api/v1/branch/add', 'POST /api/v1/branch/edit', 'POST /api/v1/auth_rule/all']
+      }
     }
 
   ]

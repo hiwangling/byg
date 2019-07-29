@@ -10,9 +10,9 @@ const taskRouter = {
   meta: { title: '任务中心', icon: 'star' },
   children: [
     {
-      path: '/carsend',
-      name: 'Vuecarsend',
-      component: () => import('@/views/task/carsend'),
+      path: '/cartask',
+      name: 'Vuecartask',
+      component: () => import('@/views/task/cartask'),
       meta: {
         title: '接运管理',
         noCache: true,

@@ -20,7 +20,7 @@ const settingRouter = {
       }
     },
     {
-      path: '/code',
+      path: '/cold',
       name: 'Vuecold',
       component: () => import('@/views/setting/cold'),
       meta: {

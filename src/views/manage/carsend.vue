@@ -33,10 +33,20 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" label="联系人" prop="linkman" />
-      <el-table-column align="center" label="联系电话" prop="linkphone" />
-      <el-table-column align="center" label="出车时间" prop="outtime" />
+      <el-table-column align="center" label="逝者姓名" prop="name" width="120">
+        <template slot-scope="scope">
+          {{ scope.row.name }} ({{ scope.row.sex }})
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="联系人" prop="linkman" width="120" />
+      <el-table-column align="center" label="联系电话" prop="linkphone" width="120" />
+      <el-table-column align="center" label="出车时间" prop="outtime" width="160" />
       <el-table-column align="center" label="预约地址" prop="address" />
+      <el-table-column align="center" label="状态" prop="state" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.state | carFilter"> {{ scope.row.state | obituary_list }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="操作" class-name="small-padding" width="150">
         <template slot-scope="scope">
           <el-button
@@ -255,7 +265,8 @@ export default {
         linkphone: '',
         driver: '',
         operator: '',
-        remark: ''
+        remark: '',
+        server: null
       }
     },
     CarBind(id) {
@@ -300,7 +311,7 @@ export default {
     },
     handleUpdate(row) {
       this.dataForm = Object.assign({}, row)
-      const data = { oid: row.oid }
+      const data = { oid: row.oid, id: row.id, type: 1 }
       editinfoService(data).then(res => {
         this.$refs.server.editService(res)
       })

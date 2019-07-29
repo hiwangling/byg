@@ -123,6 +123,7 @@ export default {
       temp = this.list.map(v => {
         v.services.map(k => {
           this.$set(k, 'number', 1)
+          this.$set(k, 'inlet', null)
           this.$set(k, 'totalprice', k.price)
         })
         tab.push({
@@ -147,6 +148,7 @@ export default {
                   if (t.id == n.sid) {
                     t.price = n.price
                     t.number = n.number
+                    t.inlet = n.inlet
                     t.totalprice = n.totalprice
                   }
                 }

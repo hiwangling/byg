@@ -34,6 +34,7 @@
       highlight-current-row
     >
       <el-table-column align="center" label="名称" prop="title" />
+      <el-table-column align="center" label="价格" prop="price" />
       <el-table-column align="center" label="类型" prop="type">
         <template slot-scope="scope">
           <el-tag :type="scope.row.type | or_status">{{ scope.row.type == 0 ? '普通' : '特殊' }}</el-tag>
@@ -84,14 +85,16 @@
         <el-form-item label="名称" prop="title">
           <el-input v-model="dataForm.title" />
         </el-form-item>
-
+        <el-form-item label="价格" prop="price">
+          <el-input v-model="dataForm.price" />
+        </el-form-item>
         <el-form-item label="类型" prop="type">
-          <el-select v-model="dataForm.type" placeholder="选择类型" clearable class="filter-item">
+          <el-select v-model="dataForm.type" placeholder="选择类型" clearable class="filter-item" style="width:185px">
             <el-option v-for="item in t" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态" prop="state">
-          <el-select v-model="dataForm.state" placeholder="选择状态" clearable class="filter-item">
+          <el-select v-model="dataForm.state" placeholder="选择状态" clearable class="filter-item" style="width:185px">
             <el-option v-for="item in v" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
@@ -127,7 +130,8 @@ export default {
       dataForm: {
         id: '',
         type: '',
-        state: ''
+        state: '',
+        price: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
