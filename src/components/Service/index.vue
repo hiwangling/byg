@@ -172,7 +172,8 @@ export default {
 
     },
     editService(val) {
-      this.service = val.data.services
+      this.service = val
+      // console.log(val)
       // var editRow = []
       // this.service.forEach((v, k) => {
       //   editRow.push(v.services)

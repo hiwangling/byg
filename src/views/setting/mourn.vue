@@ -38,9 +38,9 @@
       <el-table-column align="center" label="价格" prop="price" />
       <el-table-column align="center" label="单位" prop="unit" />
       <el-table-column align="center" label="添加时间" prop="update_time" width="160" />
-      <el-table-column align="center" label="状态" prop="state" width="100">
+      <el-table-column align="center" label="状态" prop="status" width="100">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.state | or_status">{{ scope.row.state == 0 ? '禁用' : '可用' }}</el-tag>
+          <el-tag :type="scope.row.status | or_status">{{ scope.row.status == 0 ? '禁用' : '可用' }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" class-name="small-padding" width="150">
@@ -87,12 +87,12 @@
           <el-input v-model="dataForm.price" />
         </el-form-item>
         <el-form-item label="单位" prop="unit">
-          <el-select v-model="dataForm.unit" placeholder="选择单位" clearable class="filter-item">
+          <el-select v-model="dataForm.unit" placeholder="选择单位" clearable class="filter-item" style="width:185px;">
             <el-option v-for="item in t" :key="item.id" :label="item.name" :value="item.name" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-select v-model="dataForm.status" placeholder="选择状态" clearable class="filter-item">
+          <el-select v-model="dataForm.status" placeholder="选择状态" clearable class="filter-item" style="width:185px;">
             <el-option v-for="item in v" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>

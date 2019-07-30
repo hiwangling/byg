@@ -190,7 +190,15 @@ export default {
         order: 'desc'
       },
       v: [{ id: 0, name: '禁用' }, { id: 1, name: '可用' }],
-      t: [{ id: 0, name: '元/小时' }, { id: 1, name: '元/天' }],
+      t: [
+        { id: 0, name: '元/小时' },
+        { id: 1, name: '元/天' },
+        { id: 2, name: '元/次' },
+        { id: 3, name: '元/盏(场)' },
+        { id: 4, name: '元/副' },
+        { id: 5, name: '元/场' },
+        { id: 6, name: '面议' }
+      ],
       dataForm: {
         title: '',
         price: '',
@@ -243,7 +251,7 @@ export default {
         price: 0.0,
         unit: '',
         remark: '',
-        status: '',
+        status: 1,
         branch: '',
         type: '',
         iorder: 0

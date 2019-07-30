@@ -40,9 +40,9 @@
           <el-tag :type="scope.row.type | or_status">{{ scope.row.type == 0 ? '普通' : '特殊' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="状态" prop="state">
+      <el-table-column align="center" label="状态" prop="status">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.state | or_status">{{ scope.row.state == 0 ? '占用' : '可用' }}</el-tag>
+          <el-tag :type="scope.row.status | or_status">{{ scope.row.status == 0 ? '占用' : '可用' }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" class-name="small-padding fixed-width">
@@ -125,7 +125,7 @@ export default {
         sort: 'add_time',
         order: 'desc'
       },
-      v: [{ id: 0, name: '占用' }, { id: 1, name: '可用' }],
+      v: [{ id: 0, name: '禁用' }, { id: 1, name: '可用' }],
       t: [{ id: 0, name: '普通' }, { id: 1, name: '特殊' }],
       dataForm: {
         id: '',

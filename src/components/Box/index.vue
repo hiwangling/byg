@@ -1,25 +1,24 @@
 <template>
-  <el-dialog title="选择灵堂" :visible.sync="dialogFormVisible" append-to-body>
+  <el-dialog :title="title== 0 ? '选择灵堂' : '选择冷藏柜'" :visible.sync="dialogFormVisible" append-to-body>
     <div class="box-title">
       <div v-for="(item,index) in box" :key="index">
-        <img :src="item.img" alt="" width="30">
+        <img :src="item.img" alt="" width="20">
         <span>{{ item.title }}</span>
       </div>
     </div>
     <div class="box-conent">
-      <h1>灵堂位</h1>
+      <h1>{{ title== 0 ? '灵堂' : '冷藏柜' }}</h1>
       <div class="box-main">
         <el-row :gutter="20">
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-1.png" alt="" width="30"><p> <el-radio v-model="radio" label="1">01</el-radio></p></div></el-col>
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-2.png" alt="" width="30"><p> <el-radio v-model="radio" label="2">03</el-radio></p></div></el-col>
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-1.png" alt="" width="30"><p> <el-radio v-model="radio" label="3">02</el-radio></p></div></el-col>
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-1.png" alt="" width="30"><p> <el-radio v-model="radio" label="4">04</el-radio></p></div></el-col>
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-3.png" alt="" width="30"><p> <el-radio v-model="radio" label="5">51</el-radio></p></div></el-col>
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-1.png" alt="" width="30"><p> <el-radio v-model="radio" label="6">21</el-radio></p></div></el-col>
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-1.png" alt="" width="30"><p> <el-radio v-model="radio" label="3">02</el-radio></p></div></el-col>
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-1.png" alt="" width="30"><p> <el-radio v-model="radio" label="4">04</el-radio></p></div></el-col>
-          <el-col :span="4"><div class="grid-content"><img src="../../assets/img/box-3.png" alt="" width="30"><p> <el-radio v-model="radio" label="5">51</el-radio></p></div></el-col>
-
+          <el-col v-for="(item,index) in list" :key="index" :span="4">
+            <div class="grid-content">
+              <img :src="item.state == 0 ? box[0].img : box[1].img " alt="" width="30">
+              <p>
+                <el-radio v-model="radio" :label="item.id" :disabled="item.state == 0 ? false : true">{{ item.title }}</el-radio>
+                <span class="box-span">{{ item.price }}{{ item.unit }}</span>
+              </p>
+            </div>
+          </el-col>
         </el-row>
       </div>
     </div>
@@ -34,16 +33,18 @@ export default {
   data() {
     return {
       dialogFormVisible: false,
-      radio: '1',
+      radio: '',
+      type: '',
+      title: '',
+      list: null,
       box: [{
         img: require('../../assets/img/box-1.png'),
-        title: '空闲'
+        title: '空闲',
+        state: 0
       }, {
         img: require('../../assets/img/box-2.png'),
-        title: '占用'
-      }, {
-        img: require('../../assets/img/box-3.png'),
-        title: '维修中'
+        title: '占用',
+        state: 1
       }],
       dataFrom: {
 
@@ -55,11 +56,20 @@ export default {
 
   },
   methods: {
-    show() {
+    show(val) {
+      this.list = val.list
+      this.type = val.type
+      this.title = val.type
       this.dialogFormVisible = true
     },
     SendData() {
-
+      this.list.forEach(ele => {
+        if (ele.id == this.radio) {
+          const data = { type: this.type, data: ele }
+          this.$emit('box_data', data)
+          this.dialogFormVisible = false
+        }
+      })
     }
   }
 }
@@ -67,7 +77,8 @@ export default {
 <style>
 .box-title{
     display: flex;
-    width: 60%;
+    width: 30%;
+    padding-left: 40px;
     justify-content:space-between
 }
 .box-title img{
@@ -96,6 +107,12 @@ export default {
 }
 .box-main .grid-content {
     text-align: center
+}
+.box-span{
+    display:inline-block;
+    margin-top:5px;
+    font-size: 12px;
+    color: red
 }
 </style>
 

@@ -41,27 +41,33 @@ export function editinfoService(query) {
 }
 
 // 业务办理
+export function getobituary(query) {
+  return request({
+    url: '/obituary/common',
+    method: 'get',
+    params: query
+  })
+}
+export function listobituary(data) {
+  return request({
+    url: '/obituary/list',
+    method: 'post',
+    data
+  })
+}
 
-// export function createcarcommon(data) {
-//   return request({
-//     url: '/carsend/common',
-//     method: 'post',
-//     data
-//   })
-// }
+export function addobituary(data) {
+  return request({
+    url: '/obituary/add',
+    method: 'post',
+    data
+  })
+}
 
-// export function updatecombo(data) {
-//     return request({
-//         url: '/servicesCombo/edit',
-//         method: 'post',
-//         data
-//     })
-// }
-
-// export function deletecombo(query) {
-//     return request({
-//         url: '/servicesCombo/del',
-//         method: 'get',
-//         params: query
-//     })
-// }
+export function infoobituary(query) {
+  return request({
+    url: '/obituary/info',
+    method: 'get',
+    params: query
+  })
+}

@@ -313,7 +313,7 @@ export default {
       this.dataForm = Object.assign({}, row)
       const data = { oid: row.oid, id: row.id, type: 1 }
       editinfoService(data).then(res => {
-        this.$refs.server.editService(res)
+        this.$refs.server.editService(res.data.services)
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
