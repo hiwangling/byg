@@ -67,7 +67,7 @@
 export default {
   data() {
     return {
-      activeName: '接运服务',
+      activeName: '',
       dialogFormVisible: false,
       listLoading: false,
       sell: [],
@@ -97,16 +97,20 @@ export default {
     // 处理服务
     async getList() {
       this.init()
-      this.$nextTick(() => {
-        this.tab.map(async(v, i) => {
+      this.$nextTick(async() => {
+        // this.tab.map(async(v, i) => {
+          for(let i=0;i<this.tab.length;i++)
           if (this.clear == 0) {
             this.$refs.sellTable[i].clearSelection()
             this.init()
           } else {
             await this.edit(i)
+            // await this.edit(1)
+            // await this.edit(2)
+            // await this.edit(3)
             await this.edit(0)
           }
-        })
+        // })
       })
     },
     // 计算总价
@@ -120,6 +124,7 @@ export default {
     init() {
       var temp = []
       var tab = []
+      this.activeName = this.list[0].title ? this.list[0].title : ''
       temp = this.list.map(v => {
         v.services.map(k => {
           this.$set(k, 'number', 1)
@@ -136,14 +141,16 @@ export default {
     },
     edit(i) {
       this.index = i
+ 
       this.$nextTick(() => {
-        this.$refs.sellTable[this.index].clearSelection()
+        this.$refs.sellTable[i].clearSelection()
         this.service.forEach((v, k) => {
           var server = []
           server = v.services
+          console.log(v.services)
           server.forEach(n => {
-            for (var k in n) {
-              this.$refs.sellTable[this.index].data.forEach(t => {
+       
+              this.$refs.sellTable[i].data.forEach(t => {
                 for (var key in t) {
                   if (t.id == n.sid) {
                     t.price = n.price
@@ -153,9 +160,9 @@ export default {
                   }
                 }
               })
-            }
-            this.$refs.sellTable[this.index].toggleRowSelection(
-              this.$refs.sellTable[this.index].data.find(item => item.id === n.sid),
+         
+            this.$refs.sellTable[i].toggleRowSelection(
+              this.$refs.sellTable[i].data.find(item => item.id === n.sid),
               true
             )
           })

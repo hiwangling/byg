@@ -13,14 +13,18 @@ export const vuexData = {
       that.obituarystate.forEach((item, index) => { obj[index + 1] = item })
       return obj[v]
     },
-    type_list(v) {
-      var obj = Object.assign({}, that.config_type_list)
-      return obj[v]
-    },
     service_stype(v) {
       var obj = {}
       that.servicestype.forEach((item, index) => { obj[index + 1] = item })
-
+      return obj[v]
+    },
+    cremationstate_stype(v) {
+      var obj = {}
+      that.cremationstate.forEach((item, index) => { obj[index + 1] = item })
+      return obj[v]
+    },
+    type_list(v) {
+      var obj = Object.assign({}, that.config_type_list)
       return obj[v]
     },
     branch(v) {
@@ -41,6 +45,7 @@ export const vuexData = {
     return {
       config_type_list: null,
       config_group_list: null,
+      cremationstate:null,
       servicestype: null,
       branch: null,
       obituarystate: null
@@ -57,6 +62,7 @@ export const vuexData = {
   },
   created() {
     this.config_group_list = this.filter(this.config.config_group_list) // 1,2,3
+    this.cremationstate = this.filter(this.config.cremationstate)
     this.obituarystate = this.filter(this.config.obituarystate)
     this.servicestype = this.filter(this.config.servicestype)
     this.config_type_list = this.filter(this.config.config_type_list) // 0,1,2

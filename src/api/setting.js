@@ -252,4 +252,11 @@ export function deletecombo(query) {
     params: query
   })
 }
+export function CommonCombo(query) {
+  return request({
+    url: '/servicesCombo/common',
+    method: 'get',
+    params: query
+  })
+}
 

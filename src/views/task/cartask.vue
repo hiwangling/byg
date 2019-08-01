@@ -96,44 +96,23 @@
       <div class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
         <h1 class="bury_car_h1" style="background:#23C6C8;color:#fff">接运服务</h1>
         <el-row :gutter="20">
-          <template v-for="(item,index) in server">
-            <el-col :key="index" :span="8">
+          <template v-for="(item,index) in server" >
+            <el-col :span="8">
               <div class="grid-content">
                 <p><span> 服务名称 : </span>{{ item.title }}</p>
               </div>
             </el-col>
-            <el-col :key="index" :span="8">
+            <el-col :span="8">
               <div class="grid-content">
-                <p><span> 服务数量 : </span>{{ item.number }}</p>
+                <p><span> 数量 : </span>{{ item.number }}</p>
               </div>
             </el-col>
-            <el-col :key="index" :span="8">
+            <el-col :span="8">
               <div class="grid-content">
-                <p><span> 服务合计 : </span>{{ item.totalprice }}</p>
+                <p><span> 合计 : </span>{{ item.totalprice }}</p>
               </div>
             </el-col>
           </template>
-          <!-- <el-col :span="6">
-            <div class="grid-content">
-              <p><span> 服务价格 : </span>张三</p>
-              <p><span> 死亡原因 : </span>五</p>
-              <p><span> 年龄 : </span>44</p>
-            </div>
-          </el-col>
-          <el-col :span="6">
-            <div class="grid-content">
-              <p><span> 服务数量 : </span>张三</p>
-              <p><span> 死亡原因 : </span>五</p>
-              <p><span> 年龄 : </span>44</p>
-            </div>
-          </el-col>
-          <el-col :span="6">
-            <div class="grid-content">
-              <p><span> 服务总价 : </span>张三</p>
-              <p><span> 死亡原因 : </span>五</p>
-              <p><span> 年龄 : </span>44</p>
-            </div>
-          </el-col> -->
         </el-row>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -253,7 +232,11 @@ export default {
       this.dataForm = Object.assign({}, row)
       const data = { oid: row.oid, id: row.id, type: 2 }
       editinfoService(data).then(res => {
-        this.server = res.data.services[0].services
+        var server = []
+        if(res.data.services.length > 0){
+        server = res.data.services[0].services
+        }
+        this.server  = server
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
@@ -263,7 +246,8 @@ export default {
 </script>
 <style>
  .bury_car{
-    border: 1px solid #EEEEEE
+    border: 1px solid #EEEEEE;
+  border-radius: 5px;
  }
  .bury_car_h1{
     height: 40px;

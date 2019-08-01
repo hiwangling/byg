@@ -93,8 +93,8 @@
             <el-option v-for="item in t" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="状态" prop="state">
-          <el-select v-model="dataForm.state" placeholder="选择状态" clearable class="filter-item" style="width:185px">
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="dataForm.status" placeholder="选择状态" clearable class="filter-item" style="width:185px">
             <el-option v-for="item in v" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
@@ -128,10 +128,10 @@ export default {
       v: [{ id: 0, name: '禁用' }, { id: 1, name: '可用' }],
       t: [{ id: 0, name: '普通' }, { id: 1, name: '特殊' }],
       dataForm: {
-        id: '',
         type: '',
-        state: '',
-        price: ''
+        title:'',
+        price: '',
+        status:''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -171,8 +171,10 @@ export default {
     },
     resetForm() {
       this.dataForm = {
-        id: undefined,
-        type_name: undefined
+        type: '',
+        price: '',
+            title:'',
+        status:1
       }
     },
     handleCreate() {

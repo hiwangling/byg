@@ -314,6 +314,7 @@ export default {
       const data = { oid: row.oid, id: row.id, type: 1 }
       editinfoService(data).then(res => {
         this.$refs.server.editService(res.data.services)
+         this.dataForm.server = res.data.services
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
@@ -322,6 +323,11 @@ export default {
       })
     },
     updateData() {
+            var editRow = []
+      this.dataForm.server.forEach((v, k) => {
+        editRow.push(v.services)
+      })
+      this.dataForm.server = [].concat.apply([], editRow)
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
           editsend(this.dataForm)

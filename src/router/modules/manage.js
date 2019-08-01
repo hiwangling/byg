@@ -28,7 +28,17 @@ const manageRouter = {
         noCache: true,
         perms: ['POST /api/v1/branch/list', 'GET /api/v1/branch/del', 'POST /api/v1/branch/add', 'POST /api/v1/branch/edit', 'POST /api/v1/auth_rule/all']
       }
-    }
+    },
+        {
+      path: '/fire',
+      name: 'Vuefire',
+      component: () => import('@/views/manage/fire'),
+      meta: {
+        title: '火化办理',
+        noCache: true,
+        perms: ['POST /api/v1/branch/list', 'GET /api/v1/branch/del', 'POST /api/v1/branch/add', 'POST /api/v1/branch/edit', 'POST /api/v1/auth_rule/all']
+      }
+    },
 
   ]
 }

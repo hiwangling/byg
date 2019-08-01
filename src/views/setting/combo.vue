@@ -108,9 +108,10 @@ import {
   createcombo,
   updatecombo,
   deletecombo,
-  getcombo
+  getcombo,
+  CommonCombo
 } from '@/api/setting'
-import { listservices } from '@/api/setting'
+// import { listservices } from '@/api/setting'
 import Pagination from '@/components/Pagination'
 export default {
   name: 'VueGarden',
@@ -122,7 +123,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 100,
         search_data: '',
         sort: 'add_time',
         order: 'desc'
@@ -149,7 +150,7 @@ export default {
   computed: {},
   created() {
     this.getList()
-    listservices().then(res => {
+    CommonCombo().then(res => {
       this.getservice = res.data.data
     })
   },

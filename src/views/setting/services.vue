@@ -225,6 +225,9 @@ export default {
   computed: {},
   created() {
     this.getList()
+    this.servicestype = this.servicestype.filter((v,k) => {
+           return k != 5
+    }); 
   },
   methods: {
     getList() {

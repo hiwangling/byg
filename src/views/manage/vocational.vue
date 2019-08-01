@@ -115,15 +115,38 @@
             <el-form-item label="联系人" prop="linkman">
               <el-input v-model="dataForm.linkman" />
             </el-form-item>
-            <el-form-item label="联系电话" prop="linkphone">
+               <el-form-item label="联系人性别" prop="linksex">
+                   <el-select
+                v-model="dataForm.linksex"
+                placeholder="选择性别"
+                clearable
+                class="filter-item"
+                style="width:185px"
+              >
+                <el-option v-for="(item,index) in sex" :key="index" :label="item" :value="item" />
+              </el-select>
+            </el-form-item>
+               <el-form-item label="联系人民族" prop="nation">
+              <el-input v-model="dataForm.nation" />
+            </el-form-item>
+            <el-form-item label="联系人电话" prop="linkphone">
               <el-input v-model="dataForm.linkphone" />
             </el-form-item>
             <el-form-item label="逝者关系" prop="relation">
               <el-input v-model="dataForm.relation" />
             </el-form-item>
+              <el-form-item label="告别时间" prop="farewelltime">
+              <el-date-picker
+                v-model="dataForm.farewelltime"
+                type="datetime"
+                style="width:185px"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择告别时间"
+              />
+            </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="灵堂服务" name="second">
-            <el-form-item label="开始时间" prop="outtime">
+            <el-form-item label="开始时间" prop="mourn_data_startime">
               <el-date-picker
                 v-model="mourn_data.startime"
                 type="datetime"
@@ -132,7 +155,7 @@
                 placeholder="选择日期时间"
               />
             </el-form-item>
-            <el-form-item label="结束时间" prop="outtime">
+            <el-form-item label="结束时间" prop="mourn_data_endtime">
               <el-date-picker
                 v-model="mourn_data.endtime"
                 type="datetime"
@@ -141,18 +164,18 @@
                 placeholder="选择日期时间"
               />
             </el-form-item>
-            <el-form-item label="选择灵堂">
-              <el-input v-model="mourn_data.list.title" placeholder="请选择灵堂" style="width:200px" @focus="Show(1)" />
+            <el-form-item label="选择灵堂" prop="mourn_data_title">
+              <el-input v-model="mourn_data.list.title" placeholder="请选择灵堂" clearable  style="width:200px" @focus="Show(1)" />
             </el-form-item>
             <el-form-item label="合计">
-              <el-input v-model="mourn_data.totalprice" placeholder="合计" style="width:200px" />
+              <el-input v-model="mourn_data.totalprice"  placeholder="合计" style="width:200px" />
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="mourn_data.remark" style="width:200px" />
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="冷柜服务" name="third">
-            <el-form-item label="开始时间" prop="outtime">
+            <el-form-item label="开始时间" prop="cold_data_startime">
               <el-date-picker
                 v-model="cold_data.startime"
                 type="datetime"
@@ -170,8 +193,8 @@
                 placeholder="选择日期时间"
               />
             </el-form-item>
-            <el-form-item label="选择冷柜">
-              <el-input v-model="cold_data.list.title" placeholder="请选择冷柜" style="width:200px" @focus="Show(2)" />
+            <el-form-item label="选择冷柜" prop="cold_data_title">
+              <el-input v-model="cold_data.list.title" clearable placeholder="请选择冷柜" style="width:200px" @focus="Show(2)" />
             </el-form-item>
             <el-form-item label="合计">
               <el-input v-model="cold_data.totalprice" placeholder="合计" style="width:200px" />
@@ -198,7 +221,9 @@ import {
   getobituary,
   listobituary,
   addobituary,
-  infoobituary
+  infoobituary,
+  editobituary,
+  delobituary
 } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import box from '@/components/Box'
@@ -209,11 +234,35 @@ export default {
   components: { Pagination, box, service },
   mixins: [vuexData],
   data() {
+    var validateDate = (rule, value, callback) => {
+          if (this.mourn_data.list.title != undefined && this.mourn_data.startime == null) {
+                 if(this.mourn_data.startime == null){
+                   callback(new Error('请选择灵堂开始时间'));
+                 }else{
+                   callback();
+                 }
+          }else{
+              callback()
+          }
+      }
+    var validateDate1 = (rule, value, callback) => {
+      if (this.cold_data.list.title != undefined && this.cold_data.startime == null) {
+                 if(this.cold_data.startime == null){
+                   callback(new Error('请选择冷柜开始时间'));
+                 }else{
+                   callback();
+                 }
+          }else{
+              callback()
+          }
+ 
+      }
     return {
       list: null,
       flag: true,
       mourn: null,
       cold: null,
+      server:null,
       mourn_data: {
         startime: null,
         endtime: null,
@@ -248,10 +297,13 @@ export default {
         sex: '',
         age: '',
         card: '',
+        farewelltime:null,
         registered: '',
-        reason: null,
+        reason: '',
         linkman: '',
         relation: '',
+        linksex:'',
+        nation:'',
         linkphone: '',
         operator: '',
         mourn: {
@@ -269,20 +321,38 @@ export default {
         create: '创建'
       },
       rules: {
-        title: [
-          { required: true, message: '服务名称不能为空', trigger: 'blur' }
-        ]
+      mourn_data_startime: [
+            { type: 'date', validator: validateDate, trigger: 'change' }
+          ],
+      cold_data_startime: [
+            { type: 'date', validator: validateDate1,trigger: 'change' }
+          ],
       }
     }
+  },
+  watch: {
+  'mourn_data.list.title':{
+    deep:true,
+    handler: function(newV, oldV) {
+      if(newV == ''){
+         this.mourn_data.list = ''
+         this.mourn_data.totalprice = ''
+      }
+    }
+  },
+    'cold_data.list.title':{
+    deep:true,
+    handler: function(newV, oldV) {
+      if(newV == ''){
+         this.cold_data.list = ''
+         this.cold_data.totalprice = ''
+      }
+    }
+  }
   },
   computed: {},
   created() {
     this.getList()
-    getobituary().then(res => {
-      this.mourn = res.data.mourn
-      this.cold = res.data.cold
-      this.server = res.data.services
-    })
   },
   methods: {
     getList() {
@@ -299,24 +369,31 @@ export default {
           this.listLoading = false
         })
     },
+    getCommon(){
+    getobituary().then(res => {
+      this.mourn = res.data.mourn
+      this.cold = res.data.cold
+      this.server = res.data.services
+    })
+    },
     box_data(val) {
       this.dataForm.type = val.type
       if (val.type == 1) {
-        this.mourn_data.list = val.data
-        this.mourn_data.totalprice = val.data.price
+             this.mourn_data.list = Object.assign({}, val.data)
+             this.mourn_data.totalprice = val.data.price
       } else {
-        this.cold_data.list = val.data
-        this.cold_data.totalprice = val.data.price
+            this.cold_data.list= Object.assign({}, val.data)
+            this.cold_data.totalprice = val.data.price
+ 
       }
     },
     Show(val) {
-      if (this.flag) {
         const data = {
           list: val == 1 ? this.mourn : this.cold,
           type: val
         }
         this.$refs.box.show(data)
-      }
+    
     },
     handleShow(val) {
       const data = {
@@ -343,7 +420,10 @@ export default {
         linkman: '李四',
         relation: '母女',
         linkphone: '1315412',
-        operator: ''
+        nation:'',
+        linksex:'',
+        operator: '',
+        farewelltime:null,
       }
     },
     reset() {
@@ -369,9 +449,9 @@ export default {
     handleCreate() {
       this.resetForm()
       this.reset()
+      this.getCommon()
       this.activeName = 'info'
       this.dialogStatus = 'create'
-      this.flag = true
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -407,9 +487,9 @@ export default {
     handleUpdate(row) {
       this.activeName = 'info'
       this.dataForm = Object.assign({}, row)
+      this.getCommon()
       const data = { id: row.id }
       infoobituary(data).then(res => {
-        this.flag = false
         this.reset()
         if (res.data.mourn) {
           this.mourn_data = res.data.mourn
@@ -418,6 +498,7 @@ export default {
           this.cold_data = res.data.cold
         }
         this.$refs.server.editService(res.data.services)
+        this.dataForm.server = res.data.services
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
@@ -426,42 +507,50 @@ export default {
       })
     },
     updateData() {
-    //   this.$refs['dataForm'].validate(valid => {
-    //     if (valid) {
-    //       editsend(this.dataForm)
-    //         .then(() => {
-    //           this.getList()
-    //           this.dialogFormVisible = false
-    //           this.$notify.success({
-    //             title: '成功',
-    //             message: '更新成功'
-    //           })
-    //         })
-    //         .catch(res => {
-    //           this.$notify.error({
-    //             title: '失败',
-    //             message: res.msg
-    //           })
-    //         })
-    //     }
-    //   })
+      this.dataForm.operator = this.info.realname
+      this.dataForm.mourn = this.mourn_data
+      this.dataForm.cold = this.cold_data
+      var editRow = []
+      this.dataForm.server.forEach((v, k) => {
+        editRow.push(v.services)
+      })
+      this.dataForm.server = [].concat.apply([], editRow)
+      this.$refs['dataForm'].validate(valid => {
+        if (valid) {
+          editobituary(this.dataForm)
+            .then(() => {
+              this.getList()
+              this.dialogFormVisible = false
+              this.$notify.success({
+                title: '成功',
+                message: '更新成功'
+              })
+            })
+            .catch(res => {
+              this.$notify.error({
+                title: '失败',
+                message: res.msg
+              })
+            })
+        }
+      })
     },
     handleDelete(row) {
-    //   deletecarsend(row)
-    //     .then(res => {
-    //       this.$notify.success({
-    //         title: '成功',
-    //         message: '删除成功'
-    //       })
-    //       const index = this.list.indexOf(row)
-    //       this.list.splice(index, 1)
-    //     })
-    //     .catch(res => {
-    //       this.$notify.error({
-    //         title: '失败',
-    //         message: res.msg
-    //       })
-    //     })
+      delobituary(row)
+        .then(res => {
+          this.$notify.success({
+            title: '成功',
+            message: '删除成功'
+          })
+          const index = this.list.indexOf(row)
+          this.list.splice(index, 1)
+        })
+        .catch(res => {
+          this.$notify.error({
+            title: '失败',
+            message: res.msg
+          })
+        })
     }
   }
 }
