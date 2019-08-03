@@ -29,7 +29,7 @@ const manageRouter = {
         perms: ['POST /api/v1/branch/list', 'GET /api/v1/branch/del', 'POST /api/v1/branch/add', 'POST /api/v1/branch/edit', 'POST /api/v1/auth_rule/all']
       }
     },
-        {
+    {
       path: '/fire',
       name: 'Vuefire',
       component: () => import('@/views/manage/fire'),
@@ -39,6 +39,26 @@ const manageRouter = {
         perms: ['POST /api/v1/branch/list', 'GET /api/v1/branch/del', 'POST /api/v1/branch/add', 'POST /api/v1/branch/edit', 'POST /api/v1/auth_rule/all']
       }
     },
+    {
+      path: '/save',
+      name: 'Vuesave',
+      component: () => import('@/views/manage/save'),
+      meta: {
+        title: '寄存管理',
+        noCache: true,
+        perms: ['POST /api/v1/branch/list', 'GET /api/v1/branch/del', 'POST /api/v1/branch/add', 'POST /api/v1/branch/edit', 'POST /api/v1/auth_rule/all']
+      }
+    },
+    {
+      path: '/finance',
+      name: 'Vuefinance',
+      component: () => import('@/views/manage/finance'),
+      meta: {
+        title: '业务结算',
+        noCache: true,
+        perms: ['POST /api/v1/branch/list', 'GET /api/v1/branch/del', 'POST /api/v1/branch/add', 'POST /api/v1/branch/edit', 'POST /api/v1/auth_rule/all']
+      }
+    }
 
   ]
 }

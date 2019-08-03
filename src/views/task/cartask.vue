@@ -35,12 +35,17 @@
       <el-table-column align="center" label="联系电话" prop="linkphone" width="120" />
       <el-table-column align="center" label="出车时间" prop="outtime" width="160" />
       <el-table-column align="center" label="预约地址" prop="address" />
+      <el-table-column align="center" label="接运类型" prop="recetype" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.recetype == 1 ? '' : 'danger'"> {{ scope.row.recetype == 1 ? '接遗体' : '送骨灰' }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="状态" prop="state" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.state | carFilter"> {{ scope.row.state | obituary_list }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding fixed-width" width="150">
+      <el-table-column align="center" label="操作" class-name="small-padding fixed-width" width="160">
         <template slot-scope="scope">
           <el-button
             v-permission="['POST /api/v1/cemetery_classify/g_edit']"
@@ -48,12 +53,7 @@
             size="mini"
             @click="handleCarStatus(scope.row)"
           >  {{ scope.row.state | carState }}</el-button>
-          <el-button
-            v-permission="['GET /api/v1/cemetery_classify/g_del']"
-            type="info"
-            size="mini"
-            @click="handleLook(scope.row)"
-          >详情</el-button>
+          <el-button type="primary" size="mini" icon="el-icon-search" @click="handleLook(scope.row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -96,7 +96,7 @@
       <div class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
         <h1 class="bury_car_h1" style="background:#23C6C8;color:#fff">接运服务</h1>
         <el-row :gutter="20">
-          <template v-for="(item,index) in server" >
+          <div v-for="(item,index) in server" :key="index">
             <el-col :span="8">
               <div class="grid-content">
                 <p><span> 服务名称 : </span>{{ item.title }}</p>
@@ -112,7 +112,7 @@
                 <p><span> 合计 : </span>{{ item.totalprice }}</p>
               </div>
             </el-col>
-          </template>
+          </div>
         </el-row>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -233,10 +233,10 @@ export default {
       const data = { oid: row.oid, id: row.id, type: 2 }
       editinfoService(data).then(res => {
         var server = []
-        if(res.data.services.length > 0){
-        server = res.data.services[0].services
+        if (res.data.services.length > 0) {
+          server = res.data.services[0].services
         }
-        this.server  = server
+        this.server = server
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
@@ -244,26 +244,4 @@ export default {
   }
 }
 </script>
-<style>
- .bury_car{
-    border: 1px solid #EEEEEE;
-  border-radius: 5px;
- }
- .bury_car_h1{
-    height: 40px;
-    line-height: 40px;
-    background: #F5F5F5;
-    font-size: 16px;
-    font-weight: 100;
-    margin: 0;
-    padding-left: 10px;
-  }
-  .grid-content{
-    padding-left: 10px;
-  }
-   .grid-content span{
-     font-weight: 400;
-     color: #000
-   }
-</style>
 

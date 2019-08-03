@@ -151,7 +151,12 @@ export default {
   created() {
     this.getList()
     CommonCombo().then(res => {
-      this.getservice = res.data.data
+      var server = res.data.services
+      server.forEach((v, k) => {
+        if (v.key == 2) {
+          this.getservice = v.services
+        }
+      })
     })
   },
   methods: {

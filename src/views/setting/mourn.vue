@@ -37,7 +37,7 @@
       <el-table-column align="center" label="名称" prop="title" />
       <el-table-column align="center" label="价格" prop="price" />
       <el-table-column align="center" label="单位" prop="unit" />
-      <el-table-column align="center" label="添加时间" prop="update_time" width="160" />
+      <el-table-column align="center" label="添加时间" prop="create_time" width="160" />
       <el-table-column align="center" label="状态" prop="status" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status | or_status">{{ scope.row.status == 0 ? '禁用' : '可用' }}</el-tag>

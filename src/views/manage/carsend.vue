@@ -75,81 +75,88 @@
 
     <!-- 添加或修改对话框 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form
-        ref="dataForm"
-        :rules="rules"
-        :inline="true"
-        :model="dataForm"
-        status-icon
-        label-position="left"
-        label-width="100px"
-      >
-        <el-form-item label="逝者姓名" prop="name">
-          <el-input v-model="dataForm.name" />
-        </el-form-item>
-        <el-form-item label="逝者性别" prop="sex">
-          <el-select
-            v-model="dataForm.sex"
-            placeholder="选择性别"
-            clearable
-            class="filter-item"
-            style="width:185px"
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="基本信息" name="info">
+
+          <el-form
+            ref="dataForm"
+            :rules="rules"
+            :inline="true"
+            :model="dataForm"
+            status-icon
+            label-position="left"
+            label-width="100px"
           >
-            <el-option v-for="(item,index) in sex" :key="index" :label="item" :value="item" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="逝者年龄" prop="age">
-          <el-input v-model="dataForm.age" />
-        </el-form-item>
-        <el-form-item label="接运地址" prop="address">
-          <el-input v-model="dataForm.address" />
-        </el-form-item>
-        <el-form-item label="出车时间" prop="outtime">
-          <el-date-picker
-            v-model="dataForm.outtime"
-            type="datetime"
-            style="width:185px"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            placeholder="选择日期时间"
-          />
-        </el-form-item>
-        <el-form-item label="联系人" prop="linkman">
-          <el-input v-model="dataForm.linkman" />
-        </el-form-item>
-        <el-form-item label="联系电话" prop="linkphone">
-          <el-input v-model="dataForm.linkphone" />
-        </el-form-item>
-        <el-form-item label="接运类型" prop="recetype">
-          <el-select v-model="dataForm.recetype" placeholder="" clearable class="filter-item" style="width:185px">
-            <el-option v-for="(item,value,index) in recetype" :key="index" :label="item" :value="value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="选择车辆" prop="cid">
-          <el-select v-model="dataForm.cid" placeholder="" clearable class="filter-item" style="width:185px" @change="CarBind">
-            <el-option v-for="(item,value,index) in car" :key="index" :label="item.cartype + '(' +item.number + ')'" :value="item.id" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="司机" prop="driver">
-          <el-input v-model="dataForm.driver" />
-        </el-form-item>
-        <el-form-item label="接运价格" prop="totalprice">
-          <el-input v-model="dataForm.totalprice" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="dataForm.remark" type="textarea" :rows="2" />
-        </el-form-item>
-
-      </el-form>
+            <el-form-item label="逝者姓名" prop="name">
+              <el-input v-model="dataForm.name" />
+            </el-form-item>
+            <el-form-item label="逝者性别" prop="sex">
+              <el-select
+                v-model="dataForm.sex"
+                placeholder="选择性别"
+                clearable
+                class="filter-item"
+                style="width:185px"
+              >
+                <el-option v-for="(item,index) in sex" :key="index" :label="item" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="逝者年龄" prop="age">
+              <el-input v-model="dataForm.age" />
+            </el-form-item>
+            <el-form-item label="接运地址" prop="address">
+              <el-input v-model="dataForm.address" />
+            </el-form-item>
+            <el-form-item label="出车时间" prop="outtime">
+              <el-date-picker
+                v-model="dataForm.outtime"
+                type="datetime"
+                style="width:185px"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择日期时间"
+              />
+            </el-form-item>
+            <el-form-item label="联系人" prop="linkman">
+              <el-input v-model="dataForm.linkman" />
+            </el-form-item>
+            <el-form-item label="联系电话" prop="linkphone">
+              <el-input v-model="dataForm.linkphone" />
+            </el-form-item>
+            <el-form-item label="接运类型" prop="recetype">
+              <el-select v-model="dataForm.recetype" placeholder="" clearable class="filter-item" style="width:185px">
+                <el-option v-for="(item,value,index) in recetype" :key="index" :label="item" :value="Number(value)" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="选择车辆" prop="cid">
+              <el-select v-model="dataForm.cid" placeholder="" clearable class="filter-item" style="width:185px" @change="CarBind">
+                <el-option v-for="(item,value,index) in car" :key="index" :label="item.cartype + '(' +item.number + ')'" :value="item.id" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="司机" prop="driver">
+              <el-input v-model="dataForm.driver" />
+            </el-form-item>
+            <el-form-item label="接运价格" prop="totalprice">
+              <el-input v-model="dataForm.totalprice" />
+            </el-form-item>
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="dataForm.remark" type="textarea" :rows="2" />
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="选择服务" name="second">
+          <service ref="server" @service_data="service_data" />
+        </el-tab-pane>
+      </el-tabs>
       <div slot="footer" class="dialog-footer">
-
-        <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
-        <el-button v-else type="primary" plain @click="handleShow(1)">修改服务</el-button>
+        <!-- <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
+        <el-button v-else type="primary" plain @click="handleShow(1)">修改服务</el-button> -->
         <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
         <el-button v-else type="primary" @click="updateData">确定</el-button>
       </div>
+
     </el-dialog>
-    <service ref="server" @service_data="service_data" />
+
   </div>
 </template>
 <script>
@@ -174,6 +181,7 @@ export default {
       car: null,
       server: null,
       recetype: null,
+      activeName: 'info',
       total: 0,
       listLoading: true,
       listQuery: {
@@ -216,11 +224,6 @@ export default {
   computed: {},
   created() {
     this.getList()
-    createcarcommon().then(res => {
-      this.car = res.data.car
-      this.recetype = res.data.recetype
-      this.server = res.data.services
-    })
   },
   methods: {
     getList() {
@@ -236,6 +239,17 @@ export default {
           this.total = 0
           this.listLoading = false
         })
+    },
+    getCommon() {
+      createcarcommon().then(res => {
+        this.car = res.data.car
+        this.recetype = res.data.recetype
+        this.server = res.data.services
+        const data = {
+          server: this.server
+        }
+        this.$refs.server.showService(data)
+      })
     },
     handleShow(val) {
       const data = {
@@ -280,9 +294,14 @@ export default {
     },
     handleCreate() {
       this.resetForm()
+      this.getCommon()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
+        const data = {
+          server: this.server
+        }
+        this.$refs.server.showService(data)
         this.$refs['dataForm'].clearValidate()
       })
     },
@@ -310,11 +329,13 @@ export default {
       })
     },
     handleUpdate(row) {
+      this.activeName = 'info'
       this.dataForm = Object.assign({}, row)
+      this.getCommon()
       const data = { oid: row.oid, id: row.id, type: 1 }
       editinfoService(data).then(res => {
         this.$refs.server.editService(res.data.services)
-         this.dataForm.server = res.data.services
+        this.dataForm.server = res.data.services
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
@@ -323,11 +344,11 @@ export default {
       })
     },
     updateData() {
-            var editRow = []
-      this.dataForm.server.forEach((v, k) => {
-        editRow.push(v.services)
-      })
-      this.dataForm.server = [].concat.apply([], editRow)
+      // var editRow = []
+      // this.dataForm.server.forEach((v, k) => {
+      //   editRow.push(v.services)
+      // })
+      // this.dataForm.server = [].concat.apply([], editRow)
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
           editsend(this.dataForm)

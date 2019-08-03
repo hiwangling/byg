@@ -32,7 +32,7 @@
           <el-tag :type="scope.row.status | or_status">{{ scope.row.status == 0 ? '禁用' : '可用' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding" width="220">
+      <el-table-column align="center" label="操作" class-name="small-padding" width="160">
         <template slot-scope="scope">
           <el-button
             v-permission="['POST /api/v1/cemetery_classify/g_edit']"
@@ -46,12 +46,12 @@
             size="mini"
             @click="handleSupplies(scope.row,0)"
           >查看</el-button>
-          <el-button
+          <!-- <el-button
             v-permission="['GET /api/v1/cemetery_classify/g_del']"
             type="danger"
             size="mini"
             @click="handleDelete(scope.row)"
-          >删除</el-button>
+          >删除</el-button> -->
         </template>
       </el-table-column>
     </el-table>

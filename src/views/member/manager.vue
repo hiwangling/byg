@@ -207,8 +207,9 @@ export default {
         if (valid) {
           createAdmin(this.dataForm)
             .then(res => {
-              console.log(res.data)
-              this.list.unshift(res.data)
+              // console.log(res.data)
+              // this.list.unshift(res.data)
+              this.getList()
               this.dialogFormVisible = false
               this.$notify.success({
                 title: '成功',

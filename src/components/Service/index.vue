@@ -1,74 +1,67 @@
 <template>
-  <el-dialog title="选择服务" :visible.sync="dialogFormVisible" append-to-body>
-    <el-tabs v-model="activeName" type="card" tab-position="top" @tab-click="handleClick">
-      <el-tab-pane v-for="(item,index) in tab" :key="index" :label="item.label" :name="item.label">
-        <el-table
-          ref="sellTable"
-          v-loading="listLoading"
-          border
-          highlight-current-row
-          :data="item.list"
-          tooltip-effect="dark"
-          style="width: 100%;margin-bottom:10px"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column type="selection" align="center" width="55" />
-          <el-table-column prop="title" align="center" label="服务名称" width="150" />
-          <el-table-column prop="price" align="center" label="服务价格" show-overflow-tooltip>
-            <template slot-scope="{row}">
-              <template>
-                <el-input
-                  v-model="row.price"
-                  class="edit-input"
-                  size="mini"
-                  style="width:80px"
-                  @blur="confirmEdit(row)"
-                  @focus="confirmFocus(row)"
-                />
-                <el-input-number v-model="row.number" :min="0" :max="10" label="" size="mini" @change="handleChange(row)" />
-                <!-- <span>{{ row.totalprice }}</span> -->
-              </template>
-            </template>
-          </el-table-column>
-        </el-table>
-        <div class="el-divider el-divider--horizontal">
-          <div class="el-divider__text is-left">已选项目</div>
-        </div>
-        <el-table
-          v-show="false"
-          v-loading="listLoading"
-          :show-header="false"
-          show-summary
-          :data="item.sells"
-        >
-          <el-table-column type="index" width="50" />
-          <el-table-column prop="title" width="200" />
-          <el-table-column prop="totalprice" />
-        </el-table>
-      </el-tab-pane>
+  <el-tabs v-model="activeName" tab-position="top" @tab-click="handleClick">
+    <el-tab-pane v-for="(item,index) in tab" :key="index" :label="item.label" :name="item.label">
       <el-table
+        ref="sellTable"
+        v-loading="listLoading"
+        border
+        highlight-current-row
+        :data="item.list"
+        tooltip-effect="dark"
+        style="width: 100%;margin-bottom:10px"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" align="center" width="55" />
+        <el-table-column prop="title" align="center" label="服务名称" width="150" />
+        <el-table-column prop="price" align="center" label="服务价格" show-overflow-tooltip>
+          <template slot-scope="{row}">
+            <template>
+              <el-input
+                v-model="row.price"
+                class="edit-input"
+                size="mini"
+                style="width:80px"
+                @blur="confirmEdit(row)"
+                @focus="confirmFocus(row)"
+              />
+              <el-input-number v-model="row.number" :min="0" :max="10" label="" size="mini" @change="handleChange(row)" />
+              <!-- <span>{{ row.totalprice }}</span> -->
+            </template>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="el-divider el-divider--horizontal">
+        <div class="el-divider__text is-left">已选项目</div>
+      </div>
+      <el-table
+        v-show="false"
         v-loading="listLoading"
         :show-header="false"
         show-summary
-        :data="sell"
+        :data="item.sells"
       >
         <el-table-column type="index" width="50" />
         <el-table-column prop="title" width="200" />
         <el-table-column prop="totalprice" />
       </el-table>
-    </el-tabs>
-    <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogFormVisible = false">取消</el-button>
-      <el-button type="primary" @click="SendData">确定</el-button>
-    </div>
-  </el-dialog>
+    </el-tab-pane>
+    <el-table
+      v-loading="listLoading"
+      :show-header="false"
+      show-summary
+      :data="sell"
+    >
+      <el-table-column type="index" width="50" />
+      <el-table-column prop="title" width="200" />
+      <el-table-column prop="totalprice" />
+    </el-table>
+  </el-tabs>
 </template>
 <script>
 export default {
   data() {
     return {
       activeName: '',
-      dialogFormVisible: false,
       listLoading: false,
       sell: [],
       editFlag: false,
@@ -99,7 +92,8 @@ export default {
       this.init()
       this.$nextTick(async() => {
         // this.tab.map(async(v, i) => {
-          for(let i=0;i<this.tab.length;i++)
+
+        for (let i = 0; i < this.tab.length; i++) {
           if (this.clear == 0) {
             this.$refs.sellTable[i].clearSelection()
             this.init()
@@ -110,6 +104,7 @@ export default {
             // await this.edit(3)
             await this.edit(0)
           }
+        }
         // })
       })
     },
@@ -141,26 +136,24 @@ export default {
     },
     edit(i) {
       this.index = i
- 
+
       this.$nextTick(() => {
         this.$refs.sellTable[i].clearSelection()
         this.service.forEach((v, k) => {
           var server = []
           server = v.services
-          console.log(v.services)
           server.forEach(n => {
-       
-              this.$refs.sellTable[i].data.forEach(t => {
-                for (var key in t) {
-                  if (t.id == n.sid) {
-                    t.price = n.price
-                    t.number = n.number
-                    t.inlet = n.inlet
-                    t.totalprice = n.totalprice
-                  }
+            this.$refs.sellTable[i].data.forEach(t => {
+              for (var key in t) {
+                if (t.id == n.sid) {
+                  t.price = n.price
+                  t.number = n.number
+                  t.inlet = n.inlet
+                  t.totalprice = n.totalprice
                 }
-              })
-         
+              }
+            })
+
             this.$refs.sellTable[i].toggleRowSelection(
               this.$refs.sellTable[i].data.find(item => item.id === n.sid),
               true
@@ -170,9 +163,8 @@ export default {
       })
     },
     showService(val) {
-      this.dialogFormVisible = true
+      this.clear = 0
       this.list = val.server
-      this.clear = val.clear
       this.getList()
     },
     showServiceEdit(val) {
@@ -180,6 +172,8 @@ export default {
     },
     editService(val) {
       this.service = val
+      this.clear = 1
+      this.getList()
       // console.log(val)
       // var editRow = []
       // this.service.forEach((v, k) => {
@@ -218,15 +212,19 @@ export default {
       SellArray = [].concat.apply([], SellArray)
       // SellArray = SellArray.filter(item => item != undefined)
       this.sell = SellArray
-    },
-    SendData() {
       const data = {
         services_totalprice: this.sum_price,
         service: this.sell
       }
       this.$emit('service_data', data)
-      this.dialogFormVisible = false
     }
+    // SendData() {
+    //   const data = {
+    //     services_totalprice: this.sum_price,
+    //     service: this.sell
+    //   }
+    //   this.$emit('service_data', data)
+    // }
   }
 }
 </script>

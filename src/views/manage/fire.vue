@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="listQuery.keyword"
+        v-model="listQuery.search_data"
         clearable
         class="filter-item"
         style="width: 200px;"
@@ -33,74 +33,88 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" label="逝者姓名" prop="name"  >
+      <el-table-column align="center" label="火化编号" prop="c_serial" />
+      <el-table-column align="center" label="牌号" prop="c_number" width="50" />
+      <el-table-column align="center" label="逝者姓名" prop="name">
         <template slot-scope="scope">
           {{ scope.row.name }} ({{ scope.row.sex }})
         </template>
       </el-table-column>
-      <el-table-column align="center" label="联系人" prop="linkman"   />
-      <el-table-column align="center" label="联系电话" prop="linkphone"  />
-      <el-table-column align="center" label="联系人民族" prop="nation" />
+      <el-table-column align="center" label="联系人" prop="linkman" />
+      <el-table-column align="center" label="联系电话" prop="linkphone" />
+      <!-- <el-table-column align="center" label="联系人民族" prop="nation" /> -->
       <el-table-column align="center" label="死亡原因" prop="reason" />
-      <el-table-column align="center" label="状态" prop="c_state"  >
+      <el-table-column align="center" label="状态" prop="c_state">
         <template slot-scope="scope">
           <el-tag :type="scope.row.c_state | carFilter"> {{ scope.row.c_state = scope.row.c_state==null ? 1 : scope.row.c_state | cremationstate_stype }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" class-name="small-padding" width="220">
         <template slot-scope="scope">
-        <template v-if="scope.row.c_ifsignature == 0 || scope.row.c_ifsignature ==null">
-          <el-button
-            v-permission="['POST /api/v1/cemetery_classify/g_edit']"
-            type="primary"
-            size="mini"
-            @click="handleUpdate(scope.row)"
-          >办理</el-button>
-           <el-button
-            v-permission="['POST /api/v1/cemetery_classify/g_edit']"
-            type="primary"
-            size="mini"
-            plain
-            @click="handleSign(scope.row)"
-          >打印</el-button>
-           </template>
-            <template v-else>
+          <template v-if="scope.row.c_ifsignature == 0 || scope.row.c_ifsignature ==null">
             <el-button
-            v-permission="['POST /api/v1/cemetery_classify/g_edit']"
-            type="warning"
-            size="mini"
-             v-if="scope.row.c_state == 2"
-            @click="handleOver(scope.row)"
-          >火化完成</el-button>
-             <el-button
-            v-permission="['POST /api/v1/cemetery_classify/g_edit']"
-            type="danger"
-            size="mini"
-            v-if="scope.row.c_state == 1"
-            @click="handleFire(scope.row)"
-          >开始火化</el-button>
-          <template v-if="scope.row.c_state == 3">
-           <el-button
-            v-permission="['POST /api/v1/cemetery_classify/g_edit']"
-            type="info"
-            size="mini"
-            @click="handleQu(scope.row)"
-          >取灰</el-button>
+              v-if="scope.row.c_id == null"
+              v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+              type="primary"
+              size="mini"
+              icon="el-icon-edit"
+              @click="handleUpdate(scope.row)"
+            >办理</el-button>
             <el-button
-            v-permission="['POST /api/v1/cemetery_classify/g_edit']"
-            type="primary"
-            size="mini"
-            @click="handleSave(scope.row)"
-          >寄存</el-button>
-          </template>
-           <el-button
-            v-permission="['POST /api/v1/cemetery_classify/g_edit']"
-             type="danger"
+              v-else
+              v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+              type="primary"
+              size="mini"
+              icon="el-icon-edit"
+              @click="handleUpdate(scope.row)"
+            >编辑</el-button>
+            <el-button
+              v-if="scope.row.c_id != null"
+              v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+              icon="el-icon-edit"
+              type="primary"
+              size="mini"
               plain
-            size="mini"
-             v-if="scope.row.c_state == 4 || scope.row.c_state == 5"
-          >已完结</el-button>
-              </template>
+              @click="handleSign(scope.row)"
+            >签字</el-button>
+          </template>
+          <template v-else>
+            <el-button
+              v-if="scope.row.c_state == 2"
+              v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+              type="warning"
+              size="mini"
+              @click="handleOver(scope.row)"
+            >结束火化</el-button>
+            <el-button
+              v-if="scope.row.c_state == 1"
+              v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+              type="danger"
+              size="mini"
+              @click="handleFire(scope.row)"
+            >开始火化</el-button>
+            <template v-if="scope.row.c_state == 3">
+              <el-button
+                v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+                type="info"
+                size="mini"
+                @click="handleQu(scope.row)"
+              >取灰</el-button>
+              <el-button
+                v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+                type="primary"
+                size="mini"
+                @click="handleSave(scope.row)"
+              >寄存</el-button>
+            </template>
+            <el-button
+              v-if="scope.row.c_state == 4 || scope.row.c_state == 5"
+              v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+              type="danger"
+              plain
+              size="mini"
+            >已完结</el-button>
+          </template>
         </template>
       </el-table-column>
     </el-table>
@@ -112,8 +126,8 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
-  <el-dialog title="添加寄存" :visible.sync="dialogFormVisibleSave">
-        <el-form
+    <el-dialog title="添加寄存" :visible.sync="dialogFormVisibleSave">
+      <el-form
         ref="save"
         :inline="true"
         :model="save"
@@ -121,26 +135,61 @@
         label-position="left"
         label-width="100px"
       >
+        <el-form-item label="寄存编号" prop="serial">
+          <el-input v-model="save.serial" />
+        </el-form-item>
         <el-form-item label="逝者姓名" prop="name">
-              <el-input v-model="save.name" />
-            </el-form-item>
+          <el-input v-model="save.name" />
+        </el-form-item>
+        <el-form-item label="开始时间" prop="startime">
+          <el-date-picker
+            v-model="save.startime"
+            style="width:185px"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+          />
+        </el-form-item>
+        <el-form-item label="结束时间" prop="endtime">
+          <el-date-picker
+            v-model="save.endtime"
+            style="width:185px"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+          />
+        </el-form-item>
+        <el-form-item label="联系人" prop="linkman">
+          <el-input v-model="save.linkman" />
+        </el-form-item>
+        <el-form-item label="联系电话" prop="linkphone">
+          <el-input v-model="save.linkphone" />
+        </el-form-item>
+        <el-form-item label="联系地址" prop="linkaddress">
+          <el-input v-model="save.linkaddress" />
+        </el-form-item>
+        <el-form-item label="寄存价格" prop="totalprice">
+          <el-input v-model="save.totalprice" />
+        </el-form-item>
       </el-form>
-         <div slot="footer" class="dialog-footer">
-       <el-button type="primary" @click="createSignData">确定</el-button>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="createSaveData">确定</el-button>
         <el-button @click="dialogFormVisibleSave = false">取消</el-button>
-      </div> 
-   </el-dialog>
+      </div>
+    </el-dialog>
     <!-- 添加或修改对话框 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form
-        ref="dataForm"
-        :rules="rules"
-        :inline="true"
-        :model="dataForm"
-        status-icon
-        label-position="left"
-        label-width="100px"
-      >
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="基本信息" name="info">
+          <el-form
+            ref="dataForm"
+            :rules="rules"
+            :inline="true"
+            :model="dataForm"
+            status-icon
+            label-position="left"
+            label-width="100px"
+          >
             <el-form-item label="逝者姓名" prop="name">
               <el-input v-model="dataForm.name" />
             </el-form-item>
@@ -170,8 +219,8 @@
             <el-form-item label="联系人" prop="linkman">
               <el-input v-model="dataForm.linkman" />
             </el-form-item>
-               <el-form-item label="联系人性别" prop="linksex">
-                   <el-select
+            <el-form-item label="联系人性别" prop="linksex">
+              <el-select
                 v-model="dataForm.linksex"
                 placeholder="选择性别"
                 clearable
@@ -181,7 +230,7 @@
                 <el-option v-for="(item,index) in sex" :key="index" :label="item" :value="item" />
               </el-select>
             </el-form-item>
-               <el-form-item label="联系人民族" prop="nation">
+            <el-form-item label="联系人民族" prop="nation">
               <el-input v-model="dataForm.nation" />
             </el-form-item>
             <el-form-item label="联系人电话" prop="linkphone">
@@ -189,82 +238,31 @@
             </el-form-item>
             <el-form-item label="逝者关系" prop="relation">
               <el-input v-model="dataForm.relation" />
-            </el-form-item> 
-                 <el-form-item label="承运人" prop="haulier">
+            </el-form-item>
+            <el-form-item label="承运人" prop="haulier">
               <el-input v-model="dataForm.haulier" />
             </el-form-item>
             <el-form-item label="备注" prop="c_remark">
               <el-input v-model="dataForm.c_remark" />
             </el-form-item>
-      </el-form>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="选择服务" name="second">
+          <service ref="server" @service_data="service_data" />
+        </el-tab-pane>
+      </el-tabs>
       <div slot="footer" class="dialog-footer">
-        <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
-        <el-button v-else type="primary" plain @click="handleShow(1)">添加服务</el-button>
+        <!-- <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
+        <el-button v-else type="primary" plain @click="handleShow(1)">添加服务</el-button> -->
         <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
         <el-button v-else type="primary" @click="updateData">确定</el-button>
       </div>
     </el-dialog>
 
-    <el-dialog title="查看" :visible.sync="dialogFormVisibleLook" width="900px">
-          <h3 style="text-align: center;font-size:22px;font-weight: 100; margin: 0 0 15px 0">当阳市殡仪馆火化及申请书</h3>
-    <!-- <table class="print_table" style="width:800px">
-        <tr>
-          <td><b>逝者姓名</b></td>
-          <td>{{ dataForm.name }}</td>
-          <td style="width:50px"><b>性别</b></td>
-          <td>{{ dataForm.sex }}</td>
-          <td><b>年龄</b></td>
-          <td>{{ dataForm.age }}</td>
-          <td><b>死亡日期</b></td>
-          <td style="width:50px">{{ dataForm.name }}</td>
-          <td><b>死亡原因</b></td>
-          <td>234</td>
-        </tr>
-        <tr>
-          <td><b>联系人</b></td>
-          <td>44</td>
-          <td><b>联系人电话</b></td>
-          <td>424</td>
-          <td><b>联系人性别</b></td>
-          <td>424</td>
-          <td><b>联系人民族</b></td>
-          <td>4</td>
-          <td><b>与逝者关系</b></td>
-          <td>3</td>
-        </tr>
-        <tr>
-          <td rowspan="2">申请人</td>
-          <td>姓名</td>
-          <td>33</td>
-          <td>住址</td>
-          <td colspan="6">323</td>
-        </tr>
-        <tr>
-          <td>工作单位</td>
-          <td colspan="3"/>
-          <td>电话</td>
-          <td colspan="2">213</td>
-          <td>与使用人关系</td>
-          <td>32</td>
-        </tr>
-        <tr>
-          <td colspan="10">以下由经办人填写</td>
-        </tr>
-        <tr>
-          <td>墓穴区号</td>
-          <td colspan="4">123</td>
-          <td colspan="2">收款数</td>
-          <td colspan="3">地方</td>
-        </tr>
-        <tr>
-          <td>备注</td>
-          <td colspan="10" style="height:100px">
-            <div style="height:100px"/>
-          </td>
-        </tr>
-      </table> -->
-        <div class="bury_car">
+    <el-dialog title="查看" :visible.sync="dialogFormVisibleInfo" width="900px">
+      <h3 style="text-align: center;font-size:22px;font-weight: 100; margin: 0 0 15px 0">当阳市殡仪馆火化及申请书</h3>
+      <div class="bury_car">
         <h1 class="bury_car_h1">逝者信息</h1>
         <el-row :gutter="20">
           <el-col :span="8">
@@ -290,10 +288,10 @@
           </el-col>
         </el-row>
       </div>
-       <div class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;" v-if="server.length>0">
+      <div class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
         <h1 class="bury_car_h1" style="background:#23C6C8;color:#fff">火化服务</h1>
         <el-row :gutter="20">
-          <template v-for="(item,index) in server" >
+          <div v-for="(item,index) in server" :key="index">
             <el-col :span="8">
               <div class="grid-content">
                 <p><span> 服务名称 : </span>{{ item.title }}</p>
@@ -309,13 +307,13 @@
                 <p><span> 合计 : </span>{{ item.totalprice }}</p>
               </div>
             </el-col>
-          </template>
+          </div>
         </el-row>
-      </div>  
+      </div>
       <div slot="footer" class="dialog-footer">
-       <el-button type="primary" @click="createSignData">签字</el-button>
-        <el-button @click="dialogFormVisibleLook = false">取消</el-button>
-      </div> 
+        <el-button type="primary" @click="createSignData">签字</el-button>
+        <el-button @click="dialogFormVisibleInfo = false">取消</el-button>
+      </div>
     </el-dialog>
 
     <service ref="server" @service_data="service_data" />
@@ -325,10 +323,12 @@
 import {
   commonCremation,
   infoCremation,
+  addfire,
   listfire,
   editfire,
   signfire,
-  statefire
+  statefire,
+  checkfire
 } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import service from '@/components/Service'
@@ -341,8 +341,9 @@ export default {
     return {
       list: null,
       total: 0,
-      dialogFormVisibleLook:false,
-      dialogFormVisibleSave:false,
+      activeName: 'info',
+      dialogFormVisibleInfo: false,
+      dialogFormVisibleSave: false,
       listLoading: true,
       listQuery: {
         page: 1,
@@ -352,30 +353,40 @@ export default {
         order: 'desc'
       },
       sex: ['男', '女'],
-      save:{
-        name:'',
-         
+      save: {
+        name: '',
+        serial: '',
+        startime: null,
+        endtime: null,
+        signature: '',
+        linkman: '',
+        linkphone: '',
+        linkaddress: '',
+        operator: '',
+        totalprice: '',
+        c_id: '',
+        oid: ''
       },
       dataForm: {
         name: '',
         sex: '',
         age: '',
         card: '',
-        farewelltime:null,
+        farewelltime: null,
         registered: '',
         reason: '',
         linkman: '',
         relation: '',
-        linksex:'',
-        nation:'',
-        haulier:'',
+        linksex: '',
+        nation: '',
+        haulier: '',
         linkphone: '',
         operator: '',
         server: null,
-        c_remark:'',
+        c_remark: ''
 
       },
-      server:null,
+      server: null,
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
@@ -383,15 +394,14 @@ export default {
         create: '创建'
       },
       rules: {
- 
+
       }
     }
   },
-  watch: {
- 
- 
-  },
   computed: {},
+  watch: {
+
+  },
   created() {
     this.getList()
   },
@@ -410,29 +420,26 @@ export default {
           this.listLoading = false
         })
     },
-    getCommon(){
-    commonCremation().then(res => {
-      this.server = res.data.services
-    })
+    getCommon() {
+      commonCremation().then(res => {
+        this.server = res.data.services
+        const data = {
+          server: this.server
+        }
+        this.$refs.server.showService(data)
+      })
     },
-    handleSign(row){
-       this.dataForm = Object.assign({}, row)
-      const data = {id: row.id }
+    handleSign(row) {
+      this.dataForm = Object.assign({}, row)
+      const data = { id: row.id }
       infoCremation(data).then(res => {
         var server = []
-        if(res.data.services.length > 0){
-        server = res.data.services[0].services
+        if (res.data.services.length > 0) {
+          server = res.data.services[0].services
         }
-        this.server  = server
+        this.server = server
       })
-      this.dialogFormVisibleLook = true
-    },
-    handleShow(val) {
-      const data = {
-        clear: val,
-        server: this.server
-      }
-      this.$refs.server.showService(data)
+      this.dialogFormVisibleInfo = true
     },
     service_data(data) {
       this.dataForm.server = data
@@ -452,100 +459,127 @@ export default {
         linkman: '李四',
         relation: '母女',
         linkphone: '1315412',
-        nation:'',
-        linksex:'',
+        nation: '',
+        linksex: '',
         operator: '',
-        c_remark:'',
-        haulier:'',
-        server:null,
+        c_remark: '',
+        haulier: '',
+        server: null
       }
     },
-    handleQu(row){
+    handleQu(row) {
       this.$confirm('是否取灰?', '提示', {
-          confirmButtonText: '取灰',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-       const data = {
-        id:row.id,
-        c_id:row.c_id,
-        state:row.c_state
-      }
-     statefire(data).then(res => {
-       if(res.code == 0){
-             this.getList()
-             this.$message({
-            type: 'success',
-            message: '操作成功!'
-          });
-       }
-      })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '操作取消'
-          });          
-        });
-    },
-    handleSave(row){
-       this.save = Object.assign({}, row)
-    this.dialogFormVisibleSave = true
-    },
-    handleOver(row){
-        this.$confirm('火化是否完成?', '提示', {
-          confirmButtonText: '完成',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-       const data = {
-        id:row.id,
-        c_id:row.c_id,
-        state:row.c_state
-      }
-     statefire(data).then(res => {
-       if(res.code == 0){
-             this.getList()
-             this.$message({
-            type: 'success',
-            message: '操作成功!'
-          });
-       }
-      })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '操作取消'
-          });          
-        });
-    },
-    handleFire(row){
-        this.$prompt('请输入火化牌号', '信息', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          inputPattern: /^[0-9]*$/,
-          inputErrorMessage: '请输入数字'
-        }).then(({ value }) => {
+        confirmButtonText: '取灰',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
         const data = {
-        id:row.id,
-        c_id:row.c_id,
-        state:row.c_state,
-        number:value
+          id: row.id,
+          c_id: row.c_id,
+          state: row.c_state
+        }
+        statefire(data).then(res => {
+          if (res.code == 0) {
+            this.getList()
+            this.$message({
+              type: 'success',
+              message: '操作成功!'
+            })
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '操作取消'
+        })
+      })
+    },
+    handleSave(row) {
+      this.save = Object.assign({}, row)
+      this.save.serial = ''
+      this.dialogFormVisibleSave = true
+    },
+    createSaveData() {
+      const data = {
+        name: this.save.name,
+        startime: this.save.startime,
+        signature: '',
+        serial: this.save.serial,
+        endtime: this.save.endtime,
+        linkman: this.save.linkman,
+        linkphone: this.save.linkphone,
+        linkaddress: this.save.linkaddress,
+        operator: this.info.realname,
+        totalprice: this.save.totalprice,
+        c_id: this.save.c_id,
+        oid: this.save.c_id
       }
-     statefire(data).then(res => {
-          if(res.code == 0){
-             this.getList()
-             this.$message({
+      checkfire(data).then(res => {
+        if (res.code == 0) {
+          this.getList()
+          this.$message({
             type: 'success',
             message: '操作成功!'
-          });
-       }
+          })
+          this.dialogFormVisibleSave = false
+        }
       })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '操作取消'
-          });       
-        });
+    },
+    handleOver(row) {
+      this.$confirm('火化是否完成?', '提示', {
+        confirmButtonText: '完成',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const data = {
+          id: row.id,
+          c_id: row.c_id,
+          state: row.c_state
+        }
+        statefire(data).then(res => {
+          if (res.code == 0) {
+            this.getList()
+            this.$message({
+              type: 'success',
+              message: '操作成功!'
+            })
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '操作取消'
+        })
+      })
+    },
+    handleFire(row) {
+      this.$prompt('请输入火化牌号', '信息', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^[0-9]*$/,
+        inputErrorMessage: '请输入数字'
+      }).then(({ value }) => {
+        const data = {
+          id: row.id,
+          c_id: row.c_id,
+          state: row.c_state,
+          number: value
+        }
+        statefire(data).then(res => {
+          if (res.code == 0) {
+            this.getList()
+            this.$message({
+              type: 'success',
+              message: '操作成功!'
+            })
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '操作取消'
+        })
+      })
     },
     handleCreate() {
       this.resetForm()
@@ -553,6 +587,10 @@ export default {
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
+        const data = {
+          server: this.server
+        }
+        this.$refs.server.showService(data)
         this.$refs['dataForm'].clearValidate()
       })
     },
@@ -560,7 +598,7 @@ export default {
       this.dataForm.operator = this.info.realname
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          addobituary(this.dataForm)
+          addfire(this.dataForm)
             .then(res => {
               this.getList()
               this.dialogFormVisible = false
@@ -581,18 +619,18 @@ export default {
     handleClick() {
 
     },
-    createSignData(){
+    createSignData() {
       const data = {
-        c_id:this.dataForm.c_id,
-        signature:'张三'
+        c_id: this.dataForm.c_id,
+        signature: '张三'
       }
-     signfire(data).then(res => {
-              this.getList()
-              this.dialogFormVisibleLook = false
-              this.$notify.success({
-                title: '成功',
-                message: '提交成功'
-              })
+      signfire(data).then(res => {
+        this.getList()
+        this.dialogFormVisibleInfo = false
+        this.$notify.success({
+          title: '成功',
+          message: '提交成功'
+        })
       })
     },
     handleUpdate(row) {
@@ -650,41 +688,4 @@ export default {
   }
 }
 </script>
-<style>
- .bury_car{
-    border: 1px solid #EEEEEE;
-  border-radius: 5px;
- }
- .bury_car_h1{
-    height: 40px;
-    line-height: 40px;
-    background: #F5F5F5;
-    font-size: 16px;
-    font-weight: 100;
-    margin: 0;
-    padding-left: 10px;
-  }
-  
-  .grid-content{
-    padding-left: 10px;
-  }
-   .grid-content span{
-     font-weight: 400;
-     color: #000
-   }
-
-
-   .print_table {
-  border-collapse: collapse;
-  border: none;
-}
-
-.print_table td {
-  text-align: left;
-  padding-left:5px;
-  height: 30px;
-  line-height: 30px;
-  border: solid #000 1px;
-}
-</style>
 

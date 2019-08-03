@@ -33,15 +33,15 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" label="逝者姓名" prop="name" width="120">
+      <el-table-column align="center" label="业务编号" prop="serial" width="150" />
+      <el-table-column align="center" label="逝者姓名" prop="name">
         <template slot-scope="scope">
           {{ scope.row.name }} ({{ scope.row.sex }})
         </template>
       </el-table-column>
-      <el-table-column align="center" label="联系人" prop="linkman" width="120" />
-      <el-table-column align="center" label="联系电话" prop="linkphone" width="120" />
-      <el-table-column align="center" label="出车时间" prop="outtime" width="160" />
-      <el-table-column align="center" label="预约地址" prop="address" />
+      <el-table-column align="center" label="联系人" prop="linkman" />
+      <el-table-column align="center" label="联系电话" prop="linkphone" />
+      <el-table-column align="center" label="操作人" prop="operator" />
       <el-table-column align="center" label="状态" prop="state" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.state | carFilter"> {{ scope.row.state | obituary_list }}</el-tag>
@@ -115,8 +115,8 @@
             <el-form-item label="联系人" prop="linkman">
               <el-input v-model="dataForm.linkman" />
             </el-form-item>
-               <el-form-item label="联系人性别" prop="linksex">
-                   <el-select
+            <el-form-item label="联系人性别" prop="linksex">
+              <el-select
                 v-model="dataForm.linksex"
                 placeholder="选择性别"
                 clearable
@@ -126,7 +126,7 @@
                 <el-option v-for="(item,index) in sex" :key="index" :label="item" :value="item" />
               </el-select>
             </el-form-item>
-               <el-form-item label="联系人民族" prop="nation">
+            <el-form-item label="联系人民族" prop="nation">
               <el-input v-model="dataForm.nation" />
             </el-form-item>
             <el-form-item label="联系人电话" prop="linkphone">
@@ -135,7 +135,7 @@
             <el-form-item label="逝者关系" prop="relation">
               <el-input v-model="dataForm.relation" />
             </el-form-item>
-              <el-form-item label="告别时间" prop="farewelltime">
+            <el-form-item label="告别时间" prop="farewelltime">
               <el-date-picker
                 v-model="dataForm.farewelltime"
                 type="datetime"
@@ -165,10 +165,10 @@
               />
             </el-form-item>
             <el-form-item label="选择灵堂" prop="mourn_data_title">
-              <el-input v-model="mourn_data.list.title" placeholder="请选择灵堂" clearable  style="width:200px" @focus="Show(1)" />
+              <el-input v-model="mourn_data.list.title" placeholder="请选择灵堂" clearable style="width:200px" @focus="Show(1)" />
             </el-form-item>
             <el-form-item label="合计">
-              <el-input v-model="mourn_data.totalprice"  placeholder="合计" style="width:200px" />
+              <el-input v-model="mourn_data.totalprice" placeholder="合计" style="width:200px" />
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="mourn_data.remark" style="width:200px" />
@@ -201,19 +201,23 @@
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="cold_data.remark" style="width:200px" />
-            </el-form-item></el-tab-pane>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="选择服务" name="thr">
+            <service ref="server" @service_data="service_data" />
+          </el-tab-pane>
         </el-tabs>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
-        <el-button v-else type="primary" plain @click="handleShow(1)">修改服务</el-button>
+        <!-- <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
+        <el-button v-else type="primary" plain @click="handleShow(1)">修改服务</el-button> -->
         <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
         <el-button v-else type="primary" @click="updateData">确定</el-button>
       </div>
     </el-dialog>
     <box ref="box" @box_data="box_data" />
-    <service ref="server" @service_data="service_data" />
+
   </div>
 </template>
 <script>
@@ -235,34 +239,34 @@ export default {
   mixins: [vuexData],
   data() {
     var validateDate = (rule, value, callback) => {
-          if (this.mourn_data.list.title != undefined && this.mourn_data.startime == null) {
-                 if(this.mourn_data.startime == null){
-                   callback(new Error('请选择灵堂开始时间'));
-                 }else{
-                   callback();
-                 }
-          }else{
-              callback()
-          }
+      if (this.mourn_data.list.title != undefined && this.mourn_data.startime == null) {
+        if (this.mourn_data.startime == null) {
+          callback(new Error('请选择灵堂开始时间'))
+        } else {
+          callback()
+        }
+      } else {
+        callback()
       }
+    }
     var validateDate1 = (rule, value, callback) => {
       if (this.cold_data.list.title != undefined && this.cold_data.startime == null) {
-                 if(this.cold_data.startime == null){
-                   callback(new Error('请选择冷柜开始时间'));
-                 }else{
-                   callback();
-                 }
-          }else{
-              callback()
-          }
- 
+        if (this.cold_data.startime == null) {
+          callback(new Error('请选择冷柜开始时间'))
+        } else {
+          callback()
+        }
+      } else {
+        callback()
       }
+    }
     return {
       list: null,
       flag: true,
+      EditServer: null,
       mourn: null,
       cold: null,
-      server:null,
+      server: null,
       mourn_data: {
         startime: null,
         endtime: null,
@@ -297,13 +301,13 @@ export default {
         sex: '',
         age: '',
         card: '',
-        farewelltime:null,
+        farewelltime: null,
         registered: '',
         reason: '',
         linkman: '',
         relation: '',
-        linksex:'',
-        nation:'',
+        linksex: '',
+        nation: '',
         linkphone: '',
         operator: '',
         mourn: {
@@ -321,36 +325,36 @@ export default {
         create: '创建'
       },
       rules: {
-      mourn_data_startime: [
-            { type: 'date', validator: validateDate, trigger: 'change' }
-          ],
-      cold_data_startime: [
-            { type: 'date', validator: validateDate1,trigger: 'change' }
-          ],
+        mourn_data_startime: [
+          { type: 'date', validator: validateDate, trigger: 'change' }
+        ],
+        cold_data_startime: [
+          { type: 'date', validator: validateDate1, trigger: 'change' }
+        ]
       }
     }
-  },
-  watch: {
-  'mourn_data.list.title':{
-    deep:true,
-    handler: function(newV, oldV) {
-      if(newV == ''){
-         this.mourn_data.list = ''
-         this.mourn_data.totalprice = ''
-      }
-    }
-  },
-    'cold_data.list.title':{
-    deep:true,
-    handler: function(newV, oldV) {
-      if(newV == ''){
-         this.cold_data.list = ''
-         this.cold_data.totalprice = ''
-      }
-    }
-  }
   },
   computed: {},
+  watch: {
+    'mourn_data.list.title': {
+      deep: true,
+      handler: function(newV, oldV) {
+        if (newV == '') {
+          this.mourn_data.list = ''
+          this.mourn_data.totalprice = ''
+        }
+      }
+    },
+    'cold_data.list.title': {
+      deep: true,
+      handler: function(newV, oldV) {
+        if (newV == '') {
+          this.cold_data.list = ''
+          this.cold_data.totalprice = ''
+        }
+      }
+    }
+  },
   created() {
     this.getList()
   },
@@ -369,38 +373,33 @@ export default {
           this.listLoading = false
         })
     },
-    getCommon(){
-    getobituary().then(res => {
-      this.mourn = res.data.mourn
-      this.cold = res.data.cold
-      this.server = res.data.services
-    })
+    getCommon() {
+      getobituary().then(res => {
+        this.mourn = res.data.mourn
+        this.cold = res.data.cold
+        this.server = res.data.services
+        const data = {
+          server: this.server
+        }
+        this.$refs.server.showService(data)
+      })
     },
     box_data(val) {
       this.dataForm.type = val.type
       if (val.type == 1) {
-             this.mourn_data.list = Object.assign({}, val.data)
-             this.mourn_data.totalprice = val.data.price
+        this.mourn_data.list = Object.assign({}, val.data)
+        this.mourn_data.totalprice = val.data.price
       } else {
-            this.cold_data.list= Object.assign({}, val.data)
-            this.cold_data.totalprice = val.data.price
- 
+        this.cold_data.list = Object.assign({}, val.data)
+        this.cold_data.totalprice = val.data.price
       }
     },
     Show(val) {
-        const data = {
-          list: val == 1 ? this.mourn : this.cold,
-          type: val
-        }
-        this.$refs.box.show(data)
-    
-    },
-    handleShow(val) {
       const data = {
-        clear: val,
-        server: this.server
+        list: val == 1 ? this.mourn : this.cold,
+        type: val
       }
-      this.$refs.server.showService(data)
+      this.$refs.box.show(data)
     },
     service_data(data) {
       this.dataForm.server = data
@@ -420,10 +419,10 @@ export default {
         linkman: '李四',
         relation: '母女',
         linkphone: '1315412',
-        nation:'',
-        linksex:'',
+        nation: '',
+        linksex: '',
         operator: '',
-        farewelltime:null,
+        farewelltime: null
       }
     },
     reset() {
@@ -450,10 +449,15 @@ export default {
       this.resetForm()
       this.reset()
       this.getCommon()
+
       this.activeName = 'info'
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
+        const data = {
+          server: this.server
+        }
+        this.$refs.server.showService(data)
         this.$refs['dataForm'].clearValidate()
       })
     },
@@ -498,7 +502,16 @@ export default {
           this.cold_data = res.data.cold
         }
         this.$refs.server.editService(res.data.services)
-        this.dataForm.server = res.data.services
+        // const server = {
+        //   service: res.data.services,
+        //   services_totalprice: res.data.services_totalprice
+        // }
+        // var editRow = []
+        // server.service.forEach((v, k) => {
+        //   editRow.push(v.services)
+        // })
+        // server.service = [].concat.apply([], editRow)
+        // this.dataForm.server = server
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
@@ -510,11 +523,6 @@ export default {
       this.dataForm.operator = this.info.realname
       this.dataForm.mourn = this.mourn_data
       this.dataForm.cold = this.cold_data
-      var editRow = []
-      this.dataForm.server.forEach((v, k) => {
-        editRow.push(v.services)
-      })
-      this.dataForm.server = [].concat.apply([], editRow)
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
           editobituary(this.dataForm)

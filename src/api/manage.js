@@ -79,7 +79,6 @@ export function editobituary(data) {
   })
 }
 
-
 export function delobituary(query) {
   return request({
     url: '/obituary/del',
@@ -88,7 +87,7 @@ export function delobituary(query) {
   })
 }
 
-//火化办理
+// 火化办理
 
 export function listfire(data) {
   return request({
@@ -97,6 +96,15 @@ export function listfire(data) {
     data
   })
 }
+
+export function addfire(data) {
+  return request({
+    url: '/cremation/add',
+    method: 'post',
+    data
+  })
+}
+
 export function editfire(data) {
   return request({
     url: '/cremation/edit',
@@ -132,4 +140,77 @@ export function statefire(data) {
     data
   })
 }
- 
+export function checkfire(data) {
+  return request({
+    url: '/cremation/check',
+    method: 'post',
+    data
+  })
+}
+
+// 寄存管理
+export function checklist(data) {
+  return request({
+    url: '/check/list',
+    method: 'post',
+    data
+  })
+}
+export function checkadd(data) {
+  return request({
+    url: '/check/add',
+    method: 'post',
+    data
+  })
+}
+export function checkedit(data) {
+  return request({
+    url: '/check/edit',
+    method: 'post',
+    data
+  })
+}
+export function checkrenew(data) {
+  return request({
+    url: '/check/renew',
+    method: 'post',
+    data
+  })
+}
+export function checktake(data) {
+  return request({
+    url: '/check/take',
+    method: 'post',
+    data
+  })
+}
+export function checkinfo(query) {
+  return request({
+    url: '/check/details',
+    method: 'get',
+    params: query
+  })
+}
+// 业务结算
+export function financeList(data) {
+  return request({
+    url: '/finance/list',
+    method: 'post',
+    data
+  })
+}
+export function financeInfo(query) {
+  return request({
+    url: '/finance/info',
+    method: 'get',
+    params: query
+  })
+}
+export function financePay(data) {
+  return request({
+    url: '/finance/pay',
+    method: 'post',
+    data
+  })
+}
+
