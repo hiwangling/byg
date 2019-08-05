@@ -147,6 +147,13 @@ export function checkfire(data) {
     data
   })
 }
+export function sendfire(data) {
+  return request({
+    url: '/cremation/send',
+    method: 'post',
+    data
+  })
+}
 
 // 寄存管理
 export function checklist(data) {

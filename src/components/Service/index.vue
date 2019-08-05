@@ -25,7 +25,7 @@
                 @focus="confirmFocus(row)"
               />
               <el-input-number v-model="row.number" :min="0" :max="10" label="" size="mini" @change="handleChange(row)" />
-              <!-- <span>{{ row.totalprice }}</span> -->
+              <el-button v-if="row.info" size="mini" type="info" plain @click="info(row)">详情</el-button>
             </template>
           </template>
         </el-table-column>
@@ -92,16 +92,12 @@ export default {
       this.init()
       this.$nextTick(async() => {
         // this.tab.map(async(v, i) => {
-
         for (let i = 0; i < this.tab.length; i++) {
           if (this.clear == 0) {
             this.$refs.sellTable[i].clearSelection()
             this.init()
           } else {
             await this.edit(i)
-            // await this.edit(1)
-            // await this.edit(2)
-            // await this.edit(3)
             await this.edit(0)
           }
         }
@@ -119,19 +115,27 @@ export default {
     init() {
       var temp = []
       var tab = []
-      this.activeName = this.list[0].title ? this.list[0].title : ''
-      temp = this.list.map(v => {
-        v.services.map(k => {
-          this.$set(k, 'number', 1)
-          this.$set(k, 'inlet', null)
-          this.$set(k, 'totalprice', k.price)
+      if (this.list != null) {
+        this.activeName = this.list[0].title ? this.list[0].title : ''
+        console.log(this.list)
+        temp = this.list.map(v => {
+          v.services.map(k => {
+            this.$set(k, 'number', 1)
+            this.$set(k, 'inlet', null)
+            this.$set(k, 'totalprice', k.price)
+          })
+          if (v.key == 6) {
+            v.services.map(k => {
+              this.$set(k, 'info', true)
+            })
+          }
+          tab.push({
+            label: v.title,
+            list: v.services,
+            sells: []
+          })
         })
-        tab.push({
-          label: v.title,
-          list: v.services,
-          sells: []
-        })
-      })
+      }
       this.tab = tab
     },
     edit(i) {
@@ -168,6 +172,9 @@ export default {
       this.getList()
     },
     showServiceEdit(val) {
+
+    },
+    info(v) {
 
     },
     editService(val) {

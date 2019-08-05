@@ -126,6 +126,64 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
+    <el-dialog title="取灰信息" :visible.sync="dialogFormVisibleGo">
+      <el-form
+        ref="send"
+        :inline="true"
+        :model="send"
+        status-icon
+        label-position="left"
+        label-width="100px"
+      >
+        <el-form-item label="逝者姓名" prop="name">
+          <el-input v-model="send.name" />
+        </el-form-item>
+        <el-form-item label="性别" prop="sex">
+          <el-input v-model="send.sex" />
+        </el-form-item>
+        <el-form-item label="年龄" prop="age">
+          <el-input v-model="send.age" />
+        </el-form-item>
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="send.address" />
+        </el-form-item>
+        <el-form-item label="出车时间" prop="outtime">
+          <el-date-picker
+            v-model="send.outtime"
+            style="width:185px"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+          />
+        </el-form-item>
+        <el-form-item label="联系人" prop="linkman">
+          <el-input v-model="send.linkman" />
+        </el-form-item>
+        <el-form-item label="联系电话" prop="linkphone">
+          <el-input v-model="send.linkphone" />
+        </el-form-item>
+        <el-form-item label="司机" prop="driver">
+          <el-input v-model="send.driver" />
+        </el-form-item>
+        <el-form-item label="接运类型" prop="recetype">
+          <el-select v-model="send.recetype" placeholder="" clearable class="filter-item" style="width:185px">
+            <el-option v-for="(item,value,index) in recetype" :key="index" :label="item" :value="Number(value)" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="接运价格" prop="totalprice">
+          <el-input v-model="send.totalprice" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="send.remark" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="danger" @click="createsSendData">自取</el-button>
+        <el-button type="primary" @click="createGoData">确定</el-button>
+        <el-button @click="dialogFormVisibleGo = false">取消</el-button>
+      </div>
+    </el-dialog>
+
     <el-dialog title="添加寄存" :visible.sync="dialogFormVisibleSave">
       <el-form
         ref="save"
@@ -177,6 +235,7 @@
         <el-button @click="dialogFormVisibleSave = false">取消</el-button>
       </div>
     </el-dialog>
+
     <!-- 添加或修改对话框 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-tabs v-model="activeName" type="card">
@@ -328,7 +387,9 @@ import {
   editfire,
   signfire,
   statefire,
-  checkfire
+  checkfire,
+  sendfire,
+  createcarcommon
 } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import service from '@/components/Service'
@@ -341,7 +402,9 @@ export default {
     return {
       list: null,
       total: 0,
+      recetype: null,
       activeName: 'info',
+      dialogFormVisibleGo: false,
       dialogFormVisibleInfo: false,
       dialogFormVisibleSave: false,
       listLoading: true,
@@ -353,6 +416,28 @@ export default {
         order: 'desc'
       },
       sex: ['男', '女'],
+      send: {
+        name: '',
+        sex: '',
+        age: '',
+        address: '',
+        recetype: '',
+        outtime: null,
+        linkman: '',
+        totalprice: '',
+        linkphone: '',
+        driver: '',
+        cid: '',
+        c_id: '',
+        operator: '',
+        remark: '',
+        oid: ''
+      },
+      go: {
+        id: '',
+        c_id: '',
+        state: ''
+      },
       save: {
         name: '',
         serial: '',
@@ -404,6 +489,9 @@ export default {
   },
   created() {
     this.getList()
+    createcarcommon().then(res => {
+      this.recetype = res.data.recetype
+    })
   },
   methods: {
     getList() {
@@ -467,32 +555,84 @@ export default {
         server: null
       }
     },
-    handleQu(row) {
-      this.$confirm('是否取灰?', '提示', {
-        confirmButtonText: '取灰',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        const data = {
-          id: row.id,
-          c_id: row.c_id,
-          state: row.c_state
+    createGoData() {
+      sendfire(this.send).then(res => {
+        if (res.code == 0) {
+          this.getList()
+          this.dialogFormVisibleGo = false
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          })
         }
-        statefire(data).then(res => {
-          if (res.code == 0) {
-            this.getList()
-            this.$message({
-              type: 'success',
-              message: '操作成功!'
-            })
-          }
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '操作取消'
-        })
       })
+    },
+    createsSendData() {
+      const data = {
+        id: this.go.id,
+        c_id: this.go.c_id,
+        state: this.go.state
+      }
+      statefire(data).then(res => {
+        if (res.code == 0) {
+          this.getList()
+          this.dialogFormVisibleGo = false
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          })
+        }
+      })
+    },
+    handleQu(row) {
+      this.dialogFormVisibleGo = true
+      this.go = {
+        id: row.id,
+        c_id: row.c_id,
+        state: row.c_state
+      }
+
+      this.send = {
+        name: row.name,
+        sex: row.sex,
+        age: row.age,
+        address: row.address,
+        linkman: row.linkman,
+        totalprice: row.totalprice,
+        recetype: 2,
+        linkphone: row.linkphone,
+        driver: '',
+        c_id: row.c_id,
+        cid: row.cid,
+        oid: 1,
+        operator: this.info.realname,
+        remark: ''
+      }
+      // this.$confirm('是否取灰?', '提示', {
+      //   confirmButtonText: '取灰',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // }).then(() => {
+      //   const data = {
+      //     id: row.id,
+      //     c_id: row.c_id,
+      //     state: row.c_state
+      //   }
+      //   statefire(data).then(res => {
+      //     if (res.code == 0) {
+      //       this.getList()
+      //       this.$message({
+      //         type: 'success',
+      //         message: '操作成功!'
+      //       })
+      //     }
+      //   })
+      // }).catch(() => {
+      //   this.$message({
+      //     type: 'info',
+      //     message: '操作取消'
+      //   })
+      // })
     },
     handleSave(row) {
       this.save = Object.assign({}, row)
