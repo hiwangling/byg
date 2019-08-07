@@ -191,12 +191,6 @@ export default {
   computed: {},
   created() {
     this.getList()
-
-    // getconfig()
-    //   .then(res => {
-    //     // this.config_type_list = res.data.config_type_list
-    //     this.config_group_list = res.data.config_group_list
-    //   })
   },
   methods: {
     getList() {
@@ -294,21 +288,26 @@ export default {
       })
     },
     handleDelete(row) {
-      deleteconfig(row)
-        .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
+      this.$confirm('您确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteconfig(row)
+          .then(res => {
+            const index = this.list.indexOf(row)
+            this.list.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
           })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
-        .catch(res => {
-          this.$notify.error({
-            title: '失败',
-            message: res.msg
-          })
-        })
+      })
     }
   }
 }

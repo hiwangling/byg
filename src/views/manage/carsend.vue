@@ -50,11 +50,13 @@
       <el-table-column align="center" label="操作" class-name="small-padding" width="150">
         <template slot-scope="scope">
           <el-button
+            v-if="scope.row.state == 1 || scope.row.state == 2 || scope.row.state == 3"
             v-permission="['POST /api/v1/cemetery_classify/g_edit']"
             type="primary"
             size="mini"
             @click="handleUpdate(scope.row)"
           >编辑</el-button>
+
           <!-- <el-button
             v-permission="['GET /api/v1/cemetery_classify/g_del']"
             type="danger"
@@ -129,7 +131,7 @@
             </el-form-item>
             <el-form-item label="选择车辆" prop="cid">
               <el-select v-model="dataForm.cid" placeholder="" clearable class="filter-item" style="width:185px" @change="CarBind">
-                <el-option v-for="(item,value,index) in car" :key="index" :label="item.cartype + '(' +item.number + ')'" :value="item.id" />
+                <el-option v-for="(item,value,index) in car" :key="index" :label="item.number" :value="item.id" />
               </el-select>
             </el-form-item>
             <el-form-item label="司机" prop="driver">
@@ -215,8 +217,8 @@ export default {
         create: '创建'
       },
       rules: {
-        title: [
-          { required: true, message: '服务名称不能为空', trigger: 'blur' }
+        cid: [
+          { required: true, message: '请选择车辆', trigger: 'change' }
         ]
       }
     }
@@ -240,13 +242,14 @@ export default {
           this.listLoading = false
         })
     },
-    getCommon() {
+    getCommon(v) {
       createcarcommon().then(res => {
         this.car = res.data.car
         this.recetype = res.data.recetype
         this.server = res.data.services
         const data = {
-          server: this.server
+          server: this.server,
+          type: v
         }
         this.$refs.server.showService(data)
       })
@@ -294,7 +297,7 @@ export default {
     },
     handleCreate() {
       this.resetForm()
-      this.getCommon()
+      this.getCommon(0)
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -331,7 +334,7 @@ export default {
     handleUpdate(row) {
       this.activeName = 'info'
       this.dataForm = Object.assign({}, row)
-      this.getCommon()
+      this.getCommon(1)
       const data = { oid: row.oid, id: row.id, type: 1 }
       editinfoService(data).then(res => {
         this.$refs.server.editService(res.data.services)
@@ -372,12 +375,23 @@ export default {
     handleDelete(row) {
       deletecarsend(row)
         .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
+          this.$confirm('您确认删除吗?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            const index = this.list.indexOf(row)
+            this.list.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
           })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
         })
         .catch(res => {
           this.$notify.error({

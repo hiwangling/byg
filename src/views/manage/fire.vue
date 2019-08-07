@@ -33,27 +33,24 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" label="火化编号" prop="c_serial" />
-      <el-table-column align="center" label="牌号" prop="c_number" width="50" />
-      <el-table-column align="center" label="逝者姓名" prop="name">
+      <el-table-column align="center" label="牌号" prop="number" width="50" />
+      <el-table-column align="center" label="逝者姓名" prop="o_name">
         <template slot-scope="scope">
-          {{ scope.row.name }} ({{ scope.row.sex }})
+          {{ scope.row.o_name }} ({{ scope.row.o_name }})
         </template>
       </el-table-column>
-      <el-table-column align="center" label="联系人" prop="linkman" />
-      <el-table-column align="center" label="联系电话" prop="linkphone" />
-      <!-- <el-table-column align="center" label="联系人民族" prop="nation" /> -->
-      <el-table-column align="center" label="死亡原因" prop="reason" />
-      <el-table-column align="center" label="状态" prop="c_state">
+      <el-table-column align="center" label="联系人" prop="o_linkman" />
+      <el-table-column align="center" label="联系电话" prop="o_linkphone" />
+      <el-table-column align="center" label="死亡原因" prop="o_reason" />
+      <el-table-column align="center" label="状态" prop="state">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.c_state | carFilter"> {{ scope.row.c_state = scope.row.c_state==null ? 1 : scope.row.c_state | cremationstate_stype }}</el-tag>
+          <el-tag :type="scope.row.state | carFilter"> {{ scope.row.state = scope.row.state==null ? 1 : scope.row.state | cremationstate_stype }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" class-name="small-padding" width="220">
         <template slot-scope="scope">
           <template v-if="scope.row.c_ifsignature == 0 || scope.row.c_ifsignature ==null">
             <el-button
-              v-if="scope.row.c_id == null"
               v-permission="['POST /api/v1/cemetery_classify/g_edit']"
               type="primary"
               size="mini"
@@ -61,22 +58,12 @@
               @click="handleUpdate(scope.row)"
             >办理</el-button>
             <el-button
-              v-else
               v-permission="['POST /api/v1/cemetery_classify/g_edit']"
+              icon="el-icon-search"
               type="primary"
               size="mini"
-              icon="el-icon-edit"
-              @click="handleUpdate(scope.row)"
-            >编辑</el-button>
-            <el-button
-              v-if="scope.row.c_id != null"
-              v-permission="['POST /api/v1/cemetery_classify/g_edit']"
-              icon="el-icon-edit"
-              type="primary"
-              size="mini"
-              plain
               @click="handleSign(scope.row)"
-            >签字</el-button>
+            >详情</el-button>
           </template>
           <template v-else>
             <el-button
@@ -266,15 +253,28 @@
             <el-form-item label="逝者年龄" prop="age">
               <el-input v-model="dataForm.age" />
             </el-form-item>
+            <el-form-item label="民族" prop="nation">
+              <el-input v-model="dataForm.nation" />
+            </el-form-item>
             <el-form-item label="身份证" prop="card">
               <el-input v-model="dataForm.card" />
             </el-form-item>
             <el-form-item label="户口所在地" prop="registered">
               <el-input v-model="dataForm.registered" />
             </el-form-item>
+            <el-form-item label="死亡时间" prop="dietime">
+              <el-date-picker
+                v-model="dataForm.dietime"
+                style="width:185px"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+              />
+            </el-form-item>
             <el-form-item label="死亡原因" prop="reason">
               <el-input v-model="dataForm.reason" />
             </el-form-item>
+
             <el-form-item label="联系人" prop="linkman">
               <el-input v-model="dataForm.linkman" />
             </el-form-item>
@@ -289,9 +289,7 @@
                 <el-option v-for="(item,index) in sex" :key="index" :label="item" :value="item" />
               </el-select>
             </el-form-item>
-            <el-form-item label="联系人民族" prop="nation">
-              <el-input v-model="dataForm.nation" />
-            </el-form-item>
+
             <el-form-item label="联系人电话" prop="linkphone">
               <el-input v-model="dataForm.linkphone" />
             </el-form-item>
@@ -300,6 +298,12 @@
             </el-form-item>
             <el-form-item label="承运人" prop="haulier">
               <el-input v-model="dataForm.haulier" />
+            </el-form-item>
+            <el-form-item label="牌号" prop="number">
+              <el-input v-model="dataForm.number" />
+            </el-form-item>
+            <el-form-item label="操作员" prop="operator">
+              <el-input v-model="dataForm.operator" />
             </el-form-item>
             <el-form-item label="备注" prop="c_remark">
               <el-input v-model="dataForm.c_remark" />
@@ -311,8 +315,6 @@
         </el-tab-pane>
       </el-tabs>
       <div slot="footer" class="dialog-footer">
-        <!-- <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
-        <el-button v-else type="primary" plain @click="handleShow(1)">添加服务</el-button> -->
         <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
         <el-button v-else type="primary" @click="updateData">确定</el-button>
@@ -326,28 +328,34 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <div class="grid-content">
-              <p><span> 逝者姓名 : </span>{{ dataForm.name }}</p>
-              <p><span> 死亡日期 : </span>2018-5-5</p>
-              <p><span> 联系人 : </span>{{ dataForm.linkman }}</p>
+              <p><span> 逝者姓名 : </span>{{ dataForm.o_name }}</p>
+              <p><span> 逝者民族 : </span>{{ dataForm.o_nation }}</p>
+              <p><span> 户口所在地 : </span>{{ dataForm.o_registered }}</p>
+              <p><span> 联系人性别 : </span>{{ dataForm.o_linksex }}</p>
+              <p><span> 承运人 : </span>{{ dataForm.haulier }}</p>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="grid-content">
-              <p><span> 逝者性别 : </span>{{ dataForm.sex }}</p>
-              <p><span> 死亡原因 : </span>无</p>
-              <p><span> 联系电话 : </span>{{ dataForm.linkphone }}</p>
+              <p><span> 逝者性别 : </span>{{ dataForm.o_sex }}</p>
+              <p><span> 死亡原因 : </span>{{ dataForm.o_reason }}</p>
+              <p><span> 死亡时间 : </span>{{ dataForm.o_dietime }}</p>
+              <p><span> 联系人电话 : </span>{{ dataForm.o_linkphone }}</p>
+              <p><span> 备注 : </span>{{ dataForm.remark }}</p>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="grid-content">
-              <p><span> 逝者年龄 : </span>{{ dataForm.age }}</p>
-              <p><span> 死亡原因 : </span></p>
-              <p><span> 承办人 : </span>{{ dataForm.operator }}</p>
+              <p><span> 逝者年龄 : </span>{{ dataForm.o_age }}</p>
+              <p><span> 身份证 : </span>{{ dataForm.o_card }}</p>
+              <p><span> 联系人 : </span>{{ dataForm.o_linkman }}</p>
+              <p><span> 与逝者关系 : </span>{{ dataForm.o_relation }}</p>
+              <p><span> 操作员 : </span>{{ dataForm.operator }}</p>
             </div>
           </el-col>
         </el-row>
       </div>
-      <div class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
+      <div v-if="server ? server.length > 0 : false" class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
         <h1 class="bury_car_h1" style="background:#23C6C8;color:#fff">火化服务</h1>
         <el-row :gutter="20">
           <div v-for="(item,index) in server" :key="index">
@@ -370,12 +378,12 @@
         </el-row>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="createSignData">签字</el-button>
+        <el-input v-if="ifsignature == 0" v-model="signature" style="width:150px" placeholder="输入签名" />
+        <el-button v-if="ifsignature == 0" type="primary" @click="SignSend">确定</el-button>
         <el-button @click="dialogFormVisibleInfo = false">取消</el-button>
       </div>
     </el-dialog>
 
-    <service ref="server" @service_data="service_data" />
   </div>
 </template>
 <script>
@@ -403,6 +411,9 @@ export default {
       list: null,
       total: 0,
       recetype: null,
+      signature: '',
+      ifsignature: '',
+      signatureid: '',
       activeName: 'info',
       dialogFormVisibleGo: false,
       dialogFormVisibleInfo: false,
@@ -457,19 +468,21 @@ export default {
         sex: '',
         age: '',
         card: '',
-        farewelltime: null,
         registered: '',
         reason: '',
         linkman: '',
+        number: '',
         relation: '',
+        dietime: null,
         linksex: '',
         nation: '',
         haulier: '',
         linkphone: '',
         operator: '',
         server: null,
-        c_remark: ''
-
+        c_remark: '',
+        oid: '',
+        id: ''
       },
       server: null,
       dialogFormVisible: false,
@@ -508,10 +521,11 @@ export default {
           this.listLoading = false
         })
     },
-    getCommon() {
+    getCommon(v) {
       commonCremation().then(res => {
         this.server = res.data.services
         const data = {
+          type: v,
           server: this.server
         }
         this.$refs.server.showService(data)
@@ -519,15 +533,17 @@ export default {
     },
     handleSign(row) {
       this.dataForm = Object.assign({}, row)
-      const data = { id: row.id }
+      const data = { id: row.id, oid: row.oid, type: 2 }
       infoCremation(data).then(res => {
         var server = []
         if (res.data.services.length > 0) {
           server = res.data.services[0].services
         }
         this.server = server
+        this.dialogFormVisibleInfo = true
+        this.signatureid = row.id
+        this.ifsignature = row.ifsignature
       })
-      this.dialogFormVisibleInfo = true
     },
     service_data(data) {
       this.dataForm.server = data
@@ -538,16 +554,18 @@ export default {
     },
     resetForm() {
       this.dataForm = {
-        name: '张三',
-        sex: '男',
-        age: '18',
-        card: '4421154',
-        registered: '湖北宜昌市',
-        reason: '死亡原因',
-        linkman: '李四',
-        relation: '母女',
-        linkphone: '1315412',
+        name: '',
+        sex: '',
+        age: '',
+        card: '',
+        registered: '',
+        reason: '',
+        linkman: '',
+        relation: '',
+        linkphone: '',
+        dietime: null,
         nation: '',
+        number: '',
         linksex: '',
         operator: '',
         c_remark: '',
@@ -591,7 +609,6 @@ export default {
         c_id: row.c_id,
         state: row.c_state
       }
-
       this.send = {
         name: row.name,
         sex: row.sex,
@@ -723,7 +740,8 @@ export default {
     },
     handleCreate() {
       this.resetForm()
-      this.getCommon()
+      this.getCommon(0)
+      this.dataForm.operator = this.info.realname
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -735,7 +753,6 @@ export default {
       })
     },
     createData() {
-      this.dataForm.operator = this.info.realname
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
           addfire(this.dataForm)
@@ -759,24 +776,49 @@ export default {
     handleClick() {
 
     },
-    createSignData() {
-      const data = {
-        c_id: this.dataForm.c_id,
-        signature: '张三'
-      }
+    SignSend() {
+      const data = { signature: this.signature, id: this.signatureid }
       signfire(data).then(res => {
-        this.getList()
-        this.dialogFormVisibleInfo = false
-        this.$notify.success({
-          title: '成功',
-          message: '提交成功'
-        })
+        if (res.code == 0) {
+          this.$notify.success({
+            title: '成功',
+            message: '操作成功'
+          })
+          this.getList()
+          this.dialogFormVisibleInfo = false
+        } else {
+          this.$notify.error({
+            title: '失败',
+            message: res.msg
+          })
+        }
       })
     },
     handleUpdate(row) {
       this.dataForm = Object.assign({}, row)
-      this.getCommon()
-      const data = { id: row.id }
+      this.dataForm = {
+        name: row.o_name || '',
+        sex: row.o_sex || '',
+        age: row.o_age || '',
+        card: row.o_card || '',
+        registered: row.o_registered || '',
+        reason: row.o_reason || '',
+        dietime: row.o_dietime || '',
+        linkman: row.o_linkman || '',
+        relation: row.o_relation || '',
+        linkphone: row.o_linkphone || '',
+        nation: row.o_nation || '',
+        number: row.number || '',
+        linksex: row.o_linksex || '',
+        operator: row.operator || '',
+        c_remark: row.remark || '',
+        haulier: row.haulier || '',
+        id: row.id || '',
+        oid: row.oid || '',
+        server: null
+      }
+      this.getCommon(1)
+      const data = { id: row.id, oid: row.oid, type: 1 }
       infoCremation(data).then(res => {
         this.$refs.server.editService(res.data.services)
       })
@@ -807,24 +849,35 @@ export default {
             })
         }
       })
-    },
-    handleDelete(row) {
-      delobituary(row)
-        .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
-          })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
-        })
-        .catch(res => {
-          this.$notify.error({
-            title: '失败',
-            message: res.msg
-          })
-        })
     }
+    // handleDelete(row) {
+    //   delobituary(row)
+    //     .then(res => {
+    //       this.$confirm('您确认删除吗?', '提示', {
+    //         confirmButtonText: '确定',
+    //         cancelButtonText: '取消',
+    //         type: 'warning'
+    //       }).then(() => {
+    //         const index = this.list.indexOf(row)
+    //         this.list.splice(index, 1)
+    //         this.$message({
+    //           type: 'success',
+    //           message: '删除成功!'
+    //         })
+    //       }).catch(() => {
+    //         this.$message({
+    //           type: 'info',
+    //           message: '已取消删除'
+    //         })
+    //       })
+    //     })
+    //     .catch(res => {
+    //       this.$notify.error({
+    //         title: '失败',
+    //         message: res.msg
+    //       })
+    //     })
+    // }
   }
 }
 </script>

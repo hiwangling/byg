@@ -259,4 +259,10 @@ export function CommonCombo(query) {
     params: query
   })
 }
-
+export function getserver(query) {
+  return request({
+    url: '/servicescombo/services',
+    method: 'get',
+    params: query
+  })
+}

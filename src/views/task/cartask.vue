@@ -45,8 +45,9 @@
           <el-tag :type="scope.row.state | carFilter"> {{ scope.row.state | obituary_list }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding fixed-width" width="160">
+      <el-table-column align="center" label="操作" class-name="small-padding fixed-width" width="220">
         <template slot-scope="scope">
+          <el-button v-if="scope.row.state == 4" type="danger" size="mini" icon="el-icon-edit" @click="handleEdit(scope.row)">服务</el-button>
           <el-button
             v-permission="['POST /api/v1/cemetery_classify/g_edit']"
             type="primary"
@@ -73,21 +74,18 @@
           <el-col :span="8">
             <div class="grid-content">
               <p><span> 逝者姓名 : </span>{{ dataForm.name }}</p>
-              <p><span> 死亡日期 : </span>2018-5-5</p>
               <p><span> 联系人 : </span>{{ dataForm.linkman }}</p>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="grid-content">
               <p><span> 逝者性别 : </span>{{ dataForm.sex }}</p>
-              <p><span> 死亡原因 : </span>无</p>
               <p><span> 联系电话 : </span>{{ dataForm.linkphone }}</p>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="grid-content">
               <p><span> 逝者年龄 : </span>{{ dataForm.age }}</p>
-              <p><span> 死亡原因 : </span></p>
               <p><span> 承办人 : </span>{{ dataForm.operator }}</p>
             </div>
           </el-col>
@@ -119,19 +117,86 @@
         <el-button @click="dialogFormVisible = false">确定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="信息" :visible.sync="dialogFormVisibleWX">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="基本信息" name="info">
+          <el-form
+            ref="wx"
+            :rules="rules"
+            :inline="true"
+            :model="wx"
+            status-icon
+            label-position="left"
+            label-width="100px"
+          >
+            <el-form-item label="警察意见" prop="copidea">
+              <el-input v-model="wx.copidea" />
+            </el-form-item>
+            <el-form-item label="警察签字" prop="copname">
+              <el-input v-model="wx.copname" />
+            </el-form-item>
+            <el-form-item label="警察电话" prop="copphone">
+              <el-input v-model="wx.copphone" />
+            </el-form-item>
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="wx.remark" />
+            </el-form-item>
+            <el-form-item label="签字" prop="signature">
+              <el-input v-model="wx.signature" />
+            </el-form-item>
+            <el-form-item label="操作人" prop="operator">
+              <el-input v-model="wx.operator" />
+            </el-form-item>
+            <el-form-item label="无名尸" prop="unknown" style="width:100%">
+              <el-radio-group v-model="wx.unknown">
+                <el-radio :label="0">否</el-radio>
+                <el-radio :label="1">是</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="服务类型" prop="servertype">
+              <el-radio-group v-model="wx.servertype">
+                <el-radio :label="1">冰冻</el-radio>
+                <el-radio :label="2">守灵</el-radio>
+                <el-radio :label="3">火化</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="选择服务" name="second">
+          <service ref="server" @service_data="service_data" />
+        </el-tab-pane>
+      </el-tabs>
+      <div slot="footer" class="dialog-footer">
+        <!-- <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
+        <el-button v-else type="primary" plain @click="handleShow(1)">修改服务</el-button> -->
+        <el-button @click="dialogFormVisibleWX = false">取消</el-button>
+        <el-button type="primary" @click="updateData">确定</el-button>
+      </div>
+
+    </el-dialog>
   </div>
 </template>
 <script>
-import { editinfoService } from '@/api/manage'
+import {
+  createcarcommon,
+  editinfoService,
+  driver
+} from '@/api/manage'
 import { listCartask, editCarstatus } from '@/api/task'
 import Pagination from '@/components/Pagination'
+import service from '@/components/Service'
 import { vuexData } from '@/utils/mixin'
 export default {
   name: 'VueGarden',
-  components: { Pagination },
+  components: { Pagination, service },
   mixins: [vuexData],
   data() {
     return {
+      car: null,
+      recetype: null,
+      server: null,
+      activeName: 'info',
       list: null,
       total: 0,
       listLoading: true,
@@ -147,17 +212,32 @@ export default {
         type: '',
         state: ''
       },
-      server: null,
       dialogFormVisible: false,
+      dialogFormVisibleWX: false,
+      wx: {
+        servertype: '',
+        unknown: '0',
+        copidea: '',
+        name: '',
+        copname: '',
+        copphone: '',
+        remark: '',
+        operator: '',
+        id: '',
+        oid: '',
+        signature: '',
+        server: null
+      },
       dialogStatus: '',
       textMap: {
         update: '查看',
         create: '创建'
       },
       rules: {
-        type_name: [
-          { required: true, message: '墓园名称不能为空', trigger: 'blur' }
+        servertype: [
+          { required: true, message: '服务类型不能为空', trigger: 'change' }
         ]
+
       }
     }
   },
@@ -184,6 +264,83 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
+    getCommon(v) {
+      createcarcommon().then(res => {
+        this.car = res.data.car
+        this.recetype = res.data.recetype
+        this.server = res.data.services
+        const data = {
+          server: this.server,
+          type: v
+        }
+        this.$refs.server.showService(data)
+      })
+    },
+    handleEdit(v) {
+      console.log(v)
+      this.activeName = 'info'
+      this.resetForm()
+      this.wx.operator = this.info.realname
+      this.wx.remark = v.remark
+      this.wx.id = v.id
+      this.wx.oid = v.oid
+      this.wx.name = v.name
+      this.wx.servertype = v.servertype
+      this.wx.unknown = v.unknown
+      this.wx.copname = v.copname
+      this.wx.copphone = v.copphone
+      this.wx.copidea = v.copidea
+      this.dialogFormVisibleWX = true
+      this.getCommon(1)
+      const data = { oid: v.oid, id: v.id, type: 1 }
+      editinfoService(data).then(res => {
+        this.$refs.server.editService(res.data.services)
+        this.wx.server = res.data.services
+      })
+    },
+    updateData() {
+      this.$refs['wx'].validate(valid => {
+        if (valid) {
+          driver(this.wx)
+            .then(res => {
+              this.getList()
+              this.dialogFormVisibleWX = false
+              this.$notify.success({
+                title: '成功',
+                message: '操作成功'
+              })
+            })
+            .catch(res => {
+              this.$notify.error({
+                title: '失败',
+                message: res.msg
+              })
+            })
+        } else {
+          return false
+        }
+      })
+    },
+    resetForm() {
+      this.wx = {
+        servertype: '',
+        unknown: 1,
+        copidea: '',
+        copname: '',
+        copphone: '',
+        name: '',
+        remark: '',
+        operator: '',
+        id: '',
+        oid: '',
+        signature: '',
+        server: null
+      }
+    },
+    service_data(data) {
+      console.log(data)
+      this.wx.server = data
+    },
     carState(v) {
       const statusMap = { 1: '签收', 2: '出车', 3: '出车', 4: '回馆' }
       return statusMap[v]
@@ -204,6 +361,7 @@ export default {
           const data = {
             id: row.id,
             oid: row.oid,
+            cid: row.cid,
             state: row.state
           }
           editCarstatus(data)

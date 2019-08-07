@@ -8,6 +8,20 @@
         style="width: 200px;"
         placeholder="请输入关键字"
       />
+      <el-select
+        v-model="listQuery.type"
+        placeholder="选择服务类型"
+        clearable
+        class="filter-item"
+        style="width:185px"
+      >
+        <el-option
+          v-for="(item,value,index) in servicestype"
+          :key="index"
+          :label="item"
+          :value="value + 1"
+        />
+      </el-select>
       <el-button
         v-permission="['GET /api/v1/cemetery_classify/g_list']"
         class="filter-item"
@@ -33,6 +47,7 @@
       fit
       highlight-current-row
     >
+
       <el-table-column align="center" label="服务名称" prop="title" />
       <el-table-column align="center" label="服务类型" prop="type">
         <template slot-scope="scope">
@@ -46,7 +61,7 @@
         </template>
       </el-table-column>
       <el-table-column align="center" label="单位" prop="unit" />
-      <el-table-column align="center" label="排序" prop="iorder" />
+
       <el-table-column align="center" label="状态" prop="status" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status | or_status">{{ scope.row.status == 0 ? '禁用' : '可用' }}</el-tag>
@@ -92,6 +107,17 @@
         <el-form-item label="服务名称" prop="title">
           <el-input v-model="dataForm.title" />
         </el-form-item>
+        <el-form-item label="单位" prop="unit">
+          <el-select
+            v-model="dataForm.unit"
+            placeholder="选择单位"
+            clearable
+            class="filter-item"
+            style="width:185px"
+          >
+            <el-option v-for="item in t" :key="item.id" :label="item.name" :value="item.name" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="服务价格" prop="price">
           <el-input v-model="dataForm.price" />
         </el-form-item>
@@ -127,17 +153,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="单位" prop="unit">
-          <el-select
-            v-model="dataForm.unit"
-            placeholder="选择单位"
-            clearable
-            class="filter-item"
-            style="width:185px"
-          >
-            <el-option v-for="item in t" :key="item.id" :label="item.name" :value="item.name" />
-          </el-select>
-        </el-form-item>
+
         <el-form-item label="状态" prop="status">
           <el-select
             v-model="dataForm.status"
@@ -185,6 +201,7 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
+        type: '',
         search_data: '',
         sort: 'add_time',
         order: 'desc'
@@ -197,7 +214,18 @@ export default {
         { id: 3, name: '元/盏(场)' },
         { id: 4, name: '元/副' },
         { id: 5, name: '元/场' },
-        { id: 6, name: '面议' }
+        { id: 6, name: '面议' },
+        { id: 7, name: '元/排' },
+        { id: 8, name: '元/把' },
+        { id: 17, name: '元/提' },
+        { id: 9, name: '元/扎' },
+        { id: 10, name: '元/朵' },
+        { id: 11, name: '元/个' },
+        { id: 12, name: '元/对' },
+        { id: 13, name: '元/套' },
+        { id: 14, name: '元/袋' },
+        { id: 15, name: '元/条' },
+        { id: 16, name: '元/双' }
       ],
       dataForm: {
         title: '',
@@ -222,12 +250,13 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+  },
   created() {
     this.getList()
-    this.servicestype = this.servicestype.filter((v,k) => {
-           return k != 5
-    }); 
+    this.servicestype = this.servicestype.filter((v, k) => {
+      return k != 5
+    })
   },
   methods: {
     getList() {
@@ -323,21 +352,26 @@ export default {
       })
     },
     handleDelete(row) {
-      deleteservices(row)
-        .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
+      this.$confirm('您确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteservices(row)
+          .then(res => {
+            const index = this.list.indexOf(row)
+            this.list.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
           })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
-        .catch(res => {
-          this.$notify.error({
-            title: '失败',
-            message: res.msg
-          })
-        })
+      })
     }
   }
 }

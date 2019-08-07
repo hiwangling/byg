@@ -38,11 +38,16 @@
       <el-table-column align="center" label="价格" prop="price" />
       <el-table-column align="center" label="单位" prop="unit" />
       <el-table-column align="center" label="添加时间" prop="create_time" width="160" />
-      <el-table-column align="center" label="状态" prop="status" width="100">
+      <el-table-column align="center" label="状态" prop="state">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.state == 0 ? '' : 'danger'">{{ scope.row.state == 0 ? '空闲' : '使用中' }}</el-tag>
+        </template>
+      </el-table-column>
+      <!-- <el-table-column align="center" label="状态" prop="status" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status | or_status">{{ scope.row.status == 0 ? '禁用' : '可用' }}</el-tag>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column align="center" label="操作" class-name="small-padding" width="150">
         <template slot-scope="scope">
           <el-button
@@ -240,21 +245,26 @@ export default {
       })
     },
     handleDelete(row) {
-      deletemourn(row)
-        .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
+      this.$confirm('您确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deletemourn(row)
+          .then(res => {
+            const index = this.list.indexOf(row)
+            this.list.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
           })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
-        .catch(res => {
-          this.$notify.error({
-            title: '失败',
-            message: res.msg
-          })
-        })
+      })
     }
   }
 }

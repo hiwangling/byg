@@ -14,3 +14,10 @@ export function listobituary(data) {
     data
   })
 }
+export function getserver(query) {
+  return request({
+    url: '/servicescombo/services',
+    method: 'get',
+    params: query
+  })
+}

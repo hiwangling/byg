@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <div class="filter-container">
       <el-input
         v-model="listQuery.search_data"
@@ -282,21 +282,26 @@ export default {
         })
     },
     handleDelete(row) {
-      deletesupplies(row)
-        .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
+      this.$confirm('您确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deletesupplies(row)
+          .then(res => {
+            const index = this.list.indexOf(row)
+            this.list.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
           })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
-        .catch(res => {
-          this.$notify.error({
-            title: '失败',
-            message: res.msg
-          })
-        })
+      })
     }
   }
 }

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-// 服务套餐
+// 接运管理
 export function listcarsend(data) {
   return request({
     url: '/carsend/list',
@@ -84,6 +84,14 @@ export function delobituary(query) {
     url: '/obituary/del',
     method: 'get',
     params: query
+  })
+}
+
+export function signobituary(data) {
+  return request({
+    url: '/obituary/sign',
+    method: 'post',
+    data
   })
 }
 
@@ -220,4 +228,11 @@ export function financePay(data) {
     data
   })
 }
-
+// WX
+export function driver(data) {
+  return request({
+    url: '/carsend/driver',
+    method: 'post',
+    data
+  })
+}

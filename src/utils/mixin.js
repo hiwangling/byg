@@ -45,7 +45,7 @@ export const vuexData = {
     return {
       config_type_list: null,
       config_group_list: null,
-      cremationstate:null,
+      cremationstate: null,
       servicestype: null,
       branch: null,
       obituarystate: null
@@ -69,6 +69,9 @@ export const vuexData = {
     listRole()
       .then(res => {
         this.branch = res.data
+        this.branch = this.branch.filter((v, k) => {
+          return v.id != 1
+        })
       })
   },
   methods: {

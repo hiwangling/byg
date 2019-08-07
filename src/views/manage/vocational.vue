@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="listQuery.keyword"
+        v-model="listQuery.search_data"
         clearable
         class="filter-item"
         style="width: 200px;"
@@ -47,7 +47,7 @@
           <el-tag :type="scope.row.state | carFilter"> {{ scope.row.state | obituary_list }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding" width="150">
+      <el-table-column align="center" label="操作" class-name="small-padding" width="230">
         <template slot-scope="scope">
           <el-button
             v-permission="['POST /api/v1/cemetery_classify/g_edit']"
@@ -61,6 +61,7 @@
             size="mini"
             @click="handleDelete(scope.row)"
           >删除</el-button>
+          <el-button type="primary" icon="el-icon-search" size="mini" @click="handleInfo(scope.row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -109,8 +110,22 @@
             <el-form-item label="户口所在地" prop="registered">
               <el-input v-model="dataForm.registered" />
             </el-form-item>
+            <el-form-item label="民族" prop="nation">
+              <el-input v-model="dataForm.nation" />
+            </el-form-item>
             <el-form-item label="死亡原因" prop="reason">
               <el-input v-model="dataForm.reason" />
+            </el-form-item>
+            <el-form-item label="是否无名尸" prop="unknown">
+              <el-select
+                v-model="dataForm.unknown"
+                placeholder="请选择"
+                clearable
+                class="filter-item"
+                style="width:185px"
+              >
+                <el-option v-for="(item,index) in unknown" :key="index" :label="item.name" :value="item.id" />
+              </el-select>
             </el-form-item>
             <el-form-item label="联系人" prop="linkman">
               <el-input v-model="dataForm.linkman" />
@@ -125,9 +140,6 @@
               >
                 <el-option v-for="(item,index) in sex" :key="index" :label="item" :value="item" />
               </el-select>
-            </el-form-item>
-            <el-form-item label="联系人民族" prop="nation">
-              <el-input v-model="dataForm.nation" />
             </el-form-item>
             <el-form-item label="联系人电话" prop="linkphone">
               <el-input v-model="dataForm.linkphone" />
@@ -209,13 +221,123 @@
         </el-tabs>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <!-- <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
-        <el-button v-else type="primary" plain @click="handleShow(1)">修改服务</el-button> -->
         <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
         <el-button v-else type="primary" @click="updateData">确定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="查看" :visible.sync="dialogFormVisibleInfo" width="900px">
+      <div class="bury_car">
+        <h1 class="bury_car_h1">逝者信息</h1>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <div class="grid-content">
+              <p><span> 逝者姓名 : </span>{{ infodataForm.name }}</p>
+              <p><span> 身份证 : </span>{{ infodataForm.card }}</p>
+              <p><span> 死亡原因 : </span>{{ infodataForm.reason }}</p>
+              <p><span> 联系人 : </span>{{ infodataForm.linksex }}</p>
+              <p><span> 告别时间 : </span>{{ infodataForm.farewelltime }}</p>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="grid-content">
+              <p><span> 逝者性别 : </span>{{ infodataForm.sex }}</p>
+              <p><span> 户口所在地 : </span>{{ infodataForm.registered }}</p>
+              <p><span> 联系人性别 : </span>{{ infodataForm.linksex }}</p>
+              <p><span> 联系电话 : </span>{{ infodataForm.linkphone }}</p>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="grid-content">
+              <p><span> 逝者年龄 : </span>{{ infodataForm.age }}</p>
+              <p><span> 民族 : </span>{{ infodataForm.nation }}</p>
+              <p><span> 承办人 : </span>{{ infodataForm.operator }}</p>
+              <p><span> 逝者关系 : </span>{{ infodataForm.relation }}</p>
+
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+      <div v-if="InfoServer ? InfoServer.length > 0 : false" class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
+        <h1 class="bury_car_h1" style="background:#23C6C8;color:#fff">所选服务</h1>
+        <el-row :gutter="20">
+          <div v-for="(item,index) in InfoServer" :key="index">
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 服务名称 : </span>{{ item.title }}</p>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 数量 : </span>{{ item.number }}</p>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 合计 : </span>{{ item.totalprice }}</p>
+              </div>
+            </el-col>
+          </div>
+        </el-row>
+      </div>
+      <div v-if="infodataForm.cold" class="bury_car" style="border:1px solid #63afde;margin-top:10px;">
+        <h1 class="bury_car_h1" style="background:#63afde;color:#fff">冷藏柜</h1>
+        <el-row :gutter="20">
+          <el-col :span="5">
+            <div class="grid-content">
+              <p><span>冷藏柜名称 : </span>{{ infodataForm.cold.title }}</p>
+            </div>
+          </el-col>
+          <el-col :span="7">
+            <div class="grid-content">
+              <p><span>开始时间 : </span>{{ infodataForm.cold.startime }}</p>
+            </div>
+          </el-col>
+          <el-col :span="7">
+            <div class="grid-content">
+              <p><span>结束时间 : </span>{{ infodataForm.cold.endtime }}</p>
+            </div>
+          </el-col>
+          <el-col :span="5">
+            <div class="grid-content">
+              <p><span>价格合计 : </span>{{ infodataForm.cold.totalprice }}</p>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+      <div v-if="infodataForm.mourn" class="bury_car" style="border:1px solid #74bcffba;margin-top:10px;">
+        <h1 class="bury_car_h1" style="background:#74bcffba;color:#fff">悼念厅</h1>
+        <el-row :gutter="20">
+          <el-col :span="5">
+            <div class="grid-content">
+              <p><span>悼念厅名称 : </span>{{ infodataForm.mourn.title }}</p>
+            </div>
+          </el-col>
+          <el-col :span="7">
+            <div class="grid-content">
+              <p><span>开始时间 : </span>{{ infodataForm.mourn.startime }}</p>
+            </div>
+          </el-col>
+          <el-col :span="7">
+            <div class="grid-content">
+              <p><span>结束时间 : </span>{{ infodataForm.mourn.endtime }}</p>
+            </div>
+          </el-col>
+          <el-col :span="5">
+            <div class="grid-content">
+              <p><span>价格合计 : </span>{{ infodataForm.mourn.totalprice }}</p>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-input v-if="ifsignature == 0" v-model="signature" style="width:150px" placeholder="输入签名" />
+        <el-button v-if="ifsignature == 0" type="primary" @click="SignSend">确定</el-button>
+        <el-button @click="dialogFormVisibleInfo = false">取消</el-button>
+      </div>
+    </el-dialog>
+
     <box ref="box" @box_data="box_data" />
 
   </div>
@@ -227,7 +349,8 @@ import {
   addobituary,
   infoobituary,
   editobituary,
-  delobituary
+  delobituary,
+  signobituary
 } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import box from '@/components/Box'
@@ -264,9 +387,28 @@ export default {
       list: null,
       flag: true,
       EditServer: null,
+      InfoServer: null,
+      ifsignature: '',
+      signatureid: '',
+      signature: '',
       mourn: null,
       cold: null,
       server: null,
+      infodataForm: {
+        name: '',
+        sex: '',
+        age: '',
+        card: '',
+        farewelltime: null,
+        registered: '',
+        reason: '',
+        linkman: '',
+        relation: '',
+        linksex: '',
+        nation: '',
+        linkphone: '',
+        operator: ''
+      },
       mourn_data: {
         startime: null,
         endtime: null,
@@ -296,11 +438,13 @@ export default {
         order: 'desc'
       },
       sex: ['男', '女'],
+      unknown: [{ id: 0, name: '否' }, { id: 1, name: '是' }],
       dataForm: {
         name: '',
         sex: '',
         age: '',
         card: '',
+        unknown: '',
         farewelltime: null,
         registered: '',
         reason: '',
@@ -319,6 +463,7 @@ export default {
 
       },
       dialogFormVisible: false,
+      dialogFormVisibleInfo: false,
       dialogStatus: '',
       textMap: {
         update: '编辑',
@@ -373,12 +518,13 @@ export default {
           this.listLoading = false
         })
     },
-    getCommon() {
+    getCommon(v) {
       getobituary().then(res => {
         this.mourn = res.data.mourn
         this.cold = res.data.cold
         this.server = res.data.services
         const data = {
+          type: v,
           server: this.server
         }
         this.$refs.server.showService(data)
@@ -393,6 +539,24 @@ export default {
         this.cold_data.list = Object.assign({}, val.data)
         this.cold_data.totalprice = val.data.price
       }
+    },
+    SignSend() {
+      const data = { signature: this.signature, id: this.signatureid }
+      signobituary(data).then(res => {
+        if (res.code == 0) {
+          this.$notify.success({
+            title: '成功',
+            message: '操作成功'
+          })
+          this.getList()
+          this.dialogFormVisibleInfo = false
+        } else {
+          this.$notify.error({
+            title: '失败',
+            message: res.msg
+          })
+        }
+      })
     },
     Show(val) {
       const data = {
@@ -410,15 +574,16 @@ export default {
     },
     resetForm() {
       this.dataForm = {
-        name: '张三',
-        sex: '男',
-        age: '18',
-        card: '4421154',
-        registered: '湖北宜昌市',
-        reason: '死亡原因',
-        linkman: '李四',
-        relation: '母女',
-        linkphone: '1315412',
+        name: '',
+        sex: '',
+        age: '',
+        card: '',
+        registered: '',
+        unknown: 0,
+        reason: '',
+        linkman: '',
+        relation: '',
+        linkphone: '',
         nation: '',
         linksex: '',
         operator: '',
@@ -448,7 +613,7 @@ export default {
     handleCreate() {
       this.resetForm()
       this.reset()
-      this.getCommon()
+      this.getCommon(0)
 
       this.activeName = 'info'
       this.dialogStatus = 'create'
@@ -459,6 +624,20 @@ export default {
         }
         this.$refs.server.showService(data)
         this.$refs['dataForm'].clearValidate()
+      })
+    },
+    handleInfo(row) {
+      const data = { id: row.id, type: 2 }
+      infoobituary(data).then(res => {
+        var editRow = []
+        res.data.services.forEach((v, k) => {
+          editRow.push(v.services)
+        })
+        this.InfoServer = [].concat.apply([], editRow)
+        this.infodataForm = res.data
+        this.signatureid = row.id
+        this.ifsignature = row.ifsignature
+        this.dialogFormVisibleInfo = true
       })
     },
     createData() {
@@ -491,8 +670,8 @@ export default {
     handleUpdate(row) {
       this.activeName = 'info'
       this.dataForm = Object.assign({}, row)
-      this.getCommon()
-      const data = { id: row.id }
+      this.getCommon(1)
+      const data = { id: row.id, type: 1 }
       infoobituary(data).then(res => {
         this.reset()
         if (res.data.mourn) {
@@ -544,21 +723,26 @@ export default {
       })
     },
     handleDelete(row) {
-      delobituary(row)
-        .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
+      this.$confirm('您确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delobituary(row)
+          .then(res => {
+            const index = this.list.indexOf(row)
+            this.list.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
           })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
-        .catch(res => {
-          this.$notify.error({
-            title: '失败',
-            message: res.msg
-          })
-        })
+      })
     }
   }
 }

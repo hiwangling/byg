@@ -40,12 +40,17 @@
           <el-tag :type="scope.row.type | or_status">{{ scope.row.type == 0 ? '普通' : '特殊' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="状态" prop="status">
+      <el-table-column align="center" label="状态" prop="state">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.state == 0 ? '' : 'danger'">{{ scope.row.state == 0 ? '空闲' : '使用中' }}</el-tag>
+        </template>
+      </el-table-column>
+      <!-- <el-table-column align="center" label="状态" prop="status">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status | or_status">{{ scope.row.status == 0 ? '占用' : '可用' }}</el-tag>
         </template>
-      </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding fixed-width">
+      </el-table-column> -->
+      <el-table-column align="center" label="操作" class-name="small-padding fixed-width" width="160">
         <template slot-scope="scope">
           <el-button
             v-permission="['POST /api/v1/cemetery_classify/g_edit']"
@@ -129,9 +134,9 @@ export default {
       t: [{ id: 0, name: '普通' }, { id: 1, name: '特殊' }],
       dataForm: {
         type: '',
-        title:'',
+        title: '',
         price: '',
-        status:''
+        status: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -173,8 +178,8 @@ export default {
       this.dataForm = {
         type: '',
         price: '',
-            title:'',
-        status:1
+        title: '',
+        status: 1
       }
     },
     handleCreate() {
@@ -244,12 +249,23 @@ export default {
     handleDelete(row) {
       deleteCold(row)
         .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
+          this.$confirm('您确认删除吗?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            const index = this.list.indexOf(row)
+            this.list.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
           })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
         })
         .catch(res => {
           this.$notify.error({

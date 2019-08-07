@@ -84,13 +84,14 @@
         <el-form-item label="套餐价格" prop="price">
           <el-input v-model="dataForm.price" />
         </el-form-item>
-        <el-form-item label="服务列表 " prop="service_id">
+        <el-form-item label="服务列表 " prop="service">
           <el-checkbox-group v-model="dataForm.service">
             <el-checkbox
               v-for="(value, item) in getservice"
               :key="item"
-              :label="value.id"
-            >{{ value.title }}</el-checkbox>
+              style="width:200px"
+              :label="value"
+            >{{ value.title }} <el-input v-model="value.price" size="mini" style="width:70px" @blur="countPrice" /></el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
@@ -109,6 +110,7 @@ import {
   updatecombo,
   deletecombo,
   getcombo,
+  getserver,
   CommonCombo
 } from '@/api/setting'
 // import { listservices } from '@/api/setting'
@@ -148,6 +150,13 @@ export default {
     }
   },
   computed: {},
+  watch: {
+    'dataForm.service': {
+      handler() {
+        this.changePrice()
+      }
+    }
+  },
   created() {
     this.getList()
     CommonCombo().then(res => {
@@ -173,6 +182,19 @@ export default {
           this.total = 0
           this.listLoading = false
         })
+    },
+    changePrice() {
+      let sum_price = 0
+      var server = this.dataForm.service
+      if (server) {
+        server.forEach((v, k) => {
+          sum_price = sum_price + parseInt(v.price)
+        })
+        this.dataForm.price = sum_price
+      }
+    },
+    countPrice() {
+      this.changePrice()
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -216,17 +238,26 @@ export default {
     },
     handleUpdate(row) {
       this.dataForm = Object.assign({}, row)
-      var arrService = []
-      var server = row.service.split(',')
-      server.forEach(v => {
-        arrService.push(Number(v))
-      })
-      this.dataForm.service = arrService
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+      const data = { id: row.id }
+      var server = []
+      var setserver = []
+      getserver(data)
+        .then((res) => {
+          server = res.data
+          this.getservice.forEach(v => {
+            server.forEach(k => {
+              if (v.id == k.sid) {
+                setserver.push(v)
+              }
+            })
+          })
+          this.dataForm.service = setserver
+          this.dialogStatus = 'update'
+          this.dialogFormVisible = true
+          this.$nextTick(() => {
+            this.$refs['dataForm'].clearValidate()
+          })
+        })
     },
     updateData() {
       this.$refs['dataForm'].validate(valid => {
@@ -250,21 +281,26 @@ export default {
       })
     },
     handleDelete(row) {
-      deletecombo(row)
-        .then(res => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
+      this.$confirm('您确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deletecombo(row)
+          .then(res => {
+            const index = this.list.indexOf(row)
+            this.list.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
           })
-          const index = this.list.indexOf(row)
-          this.list.splice(index, 1)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
-        .catch(res => {
-          this.$notify.error({
-            title: '失败',
-            message: res.msg
-          })
-        })
+      })
     }
   }
 }
