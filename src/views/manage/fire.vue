@@ -36,7 +36,7 @@
       <el-table-column align="center" label="牌号" prop="number" width="50" />
       <el-table-column align="center" label="逝者姓名" prop="o_name">
         <template slot-scope="scope">
-          {{ scope.row.o_name }} ({{ scope.row.o_name }})
+          {{ scope.row.o_name }} ({{ scope.row.o_sex }})
         </template>
       </el-table-column>
       <el-table-column align="center" label="联系人" prop="o_linkman" />
@@ -741,6 +741,7 @@ export default {
     handleCreate() {
       this.resetForm()
       this.getCommon(0)
+      this.activeName = 'info'
       this.dataForm.operator = this.info.realname
       this.dialogStatus = 'create'
       this.dialogFormVisible = true

@@ -236,7 +236,7 @@
               <p><span> 逝者姓名 : </span>{{ infodataForm.name }}</p>
               <p><span> 身份证 : </span>{{ infodataForm.card }}</p>
               <p><span> 死亡原因 : </span>{{ infodataForm.reason }}</p>
-              <p><span> 联系人 : </span>{{ infodataForm.linksex }}</p>
+              <p><span> 联系人 : </span>{{ infodataForm.linkman }}</p>
               <p><span> 告别时间 : </span>{{ infodataForm.farewelltime }}</p>
             </div>
           </el-col>
@@ -332,7 +332,8 @@
         </el-row>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-input v-if="ifsignature == 0" v-model="signature" style="width:150px" placeholder="输入签名" />
+        <el-button type="primary" icon="el-icon-search" @click="open">查看</el-button>
+        <el-button v-if="ifsignature == 0" type="primary" @click="sign_open">签字</el-button>
         <el-button v-if="ifsignature == 0" type="primary" @click="SignSend">确定</el-button>
         <el-button @click="dialogFormVisibleInfo = false">取消</el-button>
       </div>
@@ -340,6 +341,16 @@
 
     <box ref="box" @box_data="box_data" />
 
+    <el-dialog title="签名" :visible.sync="dialogFormVisibleSign">
+      <sign @cancel="cancel" @imgData="imgData" />
+    </el-dialog>
+    <el-dialog title="查看签名" :visible.sync="dialogFormSign">
+      <img v-if="signature" :src="signature" alt="">
+      <span v-else class="sign">暂无签名</span>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormSign = false">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -355,10 +366,11 @@ import {
 import Pagination from '@/components/Pagination'
 import box from '@/components/Box'
 import service from '@/components/Service'
+import sign from '@/components/Sign'
 import { vuexData } from '@/utils/mixin'
 export default {
   name: 'VueGarden',
-  components: { Pagination, box, service },
+  components: { Pagination, box, service, sign },
   mixins: [vuexData],
   data() {
     var validateDate = (rule, value, callback) => {
@@ -464,6 +476,8 @@ export default {
       },
       dialogFormVisible: false,
       dialogFormVisibleInfo: false,
+      dialogFormVisibleSign: false,
+      dialogFormSign: false,
       dialogStatus: '',
       textMap: {
         update: '编辑',
@@ -503,6 +517,7 @@ export default {
   created() {
     this.getList()
   },
+
   methods: {
     getList() {
       this.listLoading = true
@@ -517,6 +532,18 @@ export default {
           this.total = 0
           this.listLoading = false
         })
+    },
+    sign_open() {
+      this.dialogFormVisibleSign = true
+    },
+    cancel() {
+      this.dialogFormVisibleSign = false
+    },
+    imgData(v) {
+      this.signature = v
+    },
+    open() {
+      this.dialogFormSign = true
     },
     getCommon(v) {
       getobituary().then(res => {
@@ -540,6 +567,7 @@ export default {
         this.cold_data.totalprice = val.data.price
       }
     },
+
     SignSend() {
       const data = { signature: this.signature, id: this.signatureid }
       signobituary(data).then(res => {
@@ -636,6 +664,7 @@ export default {
         this.InfoServer = [].concat.apply([], editRow)
         this.infodataForm = res.data
         this.signatureid = row.id
+        this.signature = row.signature
         this.ifsignature = row.ifsignature
         this.dialogFormVisibleInfo = true
       })
@@ -747,3 +776,12 @@ export default {
   }
 }
 </script>
+<style>
+.sign{
+  font-size: 16px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+</style>
+
