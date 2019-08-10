@@ -212,7 +212,6 @@ export default {
         } else {
           setService = v.combo ? v.combo : []
         }
-
         this.row = v
         this.setServer = setService
         this.$forceUpdate()
@@ -225,6 +224,7 @@ export default {
     editService(v) {
       this.getList()
       this.service = v
+
       // console.log(val)
       // var editRow = []
       // this.service.forEach((v, k) => {

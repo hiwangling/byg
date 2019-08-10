@@ -308,7 +308,6 @@ export default {
     },
     createData() {
       this.dataForm.operator = this.info.realname
-      // console.log(this.dataForm)
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
           createcarsend(this.dataForm)

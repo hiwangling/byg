@@ -42,10 +42,11 @@
           <el-tag type="danger">{{ scope.row.status == 1 ? '未支付' : '' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding" width="200">
+      <el-table-column align="center" label="操作" class-name="small-padding" width="250">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" icon="el-icon-truck" @click="handleCheckinfo(scope.row)">骨灰</el-button>
           <el-button type="primary" size="mini" icon="el-icon-search" @click="handleInfo(scope.row)">详情</el-button>
+          <el-button type="primary" size="mini" icon="el-icon-edit" @click="handleServer(scope.row)">服务</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -73,10 +74,13 @@
             <el-form-item label="逝者姓名" prop="name">
               <el-input v-model="save.name" />
             </el-form-item>
+            <el-form-item label="身份证" prop="card">
+              <el-input v-model="save.card" />
+            </el-form-item>
             <el-form-item label="开始时间" prop="startime">
               <el-date-picker
                 v-model="save.startime"
-                style="width:180px"
+                style="width:185px"
                 type="date"
                 value-format="yyyy-MM-dd"
                 placeholder="选择日期"
@@ -85,7 +89,7 @@
             <el-form-item label="结束时间" prop="endtime">
               <el-date-picker
                 v-model="save.endtime"
-                style="width:180px"
+                style="width:185px"
                 type="date"
                 value-format="yyyy-MM-dd"
                 placeholder="选择日期"
@@ -94,8 +98,8 @@
             <el-form-item label="联系人" prop="linkman">
               <el-input v-model="save.linkman" />
             </el-form-item>
-            <el-form-item label="身份证" prop="linkman">
-              <el-input v-model="save.card" />
+            <el-form-item label="联系人身份证" prop="linkcard">
+              <el-input v-model="save.linkcard" />
             </el-form-item>
             <el-form-item label="联系电话" prop="linkphone">
               <el-input v-model="save.linkphone" />
@@ -121,7 +125,15 @@
               <el-input v-model="send.name" />
             </el-form-item>
             <el-form-item label="性别" prop="sex">
-              <el-input v-model="send.sex" />
+              <el-select
+                v-model="send.sex"
+                placeholder="选择性别"
+                clearable
+                class="filter-item"
+                style="width:185px"
+              >
+                <el-option v-for="(item,index) in sex" :key="index" :label="item" :value="item" />
+              </el-select>
             </el-form-item>
             <el-form-item label="年龄" prop="age">
               <el-input v-model="send.age" />
@@ -144,14 +156,20 @@
             <el-form-item label="联系电话" prop="linkphone">
               <el-input v-model="send.linkphone" />
             </el-form-item>
-            <el-form-item label="司机" prop="driver">
-              <el-input v-model="send.driver" />
-            </el-form-item>
             <el-form-item label="接运类型" prop="recetype">
               <el-select v-model="send.recetype" placeholder="" clearable class="filter-item" style="width:185px">
                 <el-option v-for="(item,value,index) in recetype" :key="index" :label="item" :value="Number(value)" />
               </el-select>
             </el-form-item>
+            <el-form-item label="选择车辆" prop="cid">
+              <el-select v-model="send.cid" placeholder="" clearable class="filter-item" style="width:185px" @change="CarBind">
+                <el-option v-for="(item,value,index) in car" :key="index" :label="item.number" :value="item.id" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="司机" prop="driver">
+              <el-input v-model="send.driver" />
+            </el-form-item>
+
             <el-form-item label="接运价格" prop="totalprice">
               <el-input v-model="send.totalprice" />
             </el-form-item>
@@ -229,8 +247,9 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="签名" :visible.sync="dialogFormVisibleSign">
-      <sign @cancel="cancel" @imgData="imgData" />
+    <el-dialog title="签名" :visible.sync="dialogFormVisibleSign" @close="sign_close">
+      <!-- <sign @cancel="cancel" @imgData="imgData" /> -->
+      <e560 ref="child" @cancel="cancel" @imgData="imgData" />
     </el-dialog>
     <el-dialog title="查看签名" :visible.sync="dialogFormSign">
       <img v-if="record_sign" :src="record_sign" alt="">
@@ -239,24 +258,35 @@
         <el-button @click="dialogFormSign = false">取消</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="选择服务" :visible.sync="dialogFormServer">
+      <service ref="server" @service_data="service_data" />
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="handleSend">确定</el-button>
+        <el-button @click="dialogFormServer = false">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import { financeList, financeInfo, financePay, createcarcommon, financecheck } from '@/api/manage'
+import { financeList, financeInfo, financePay, createcarcommon, financecheck, checkCommon, servicesCommon, servicesAdd } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import sign from '@/components/Sign'
+import e560 from '@/components/E560'
+import service from '@/components/Service'
 import { vuexData } from '@/utils/mixin'
 export default {
   name: 'VueGarden',
-  components: { Pagination, sign },
+  components: { Pagination, sign, service, e560 },
   mixins: [vuexData],
   data() {
     return {
       list: null,
+      car: null,
       recetype: null,
       index: 1,
       record_sign: '',
       signatureid: '',
+      sex: ['男', '女'],
       record_ifsign: '',
       info_list: null,
       activeName: 'first',
@@ -280,6 +310,7 @@ export default {
         sex: '',
         age: '',
         address: '',
+        cid: '',
         recetype: '',
         outtime: null,
         linkman: '',
@@ -288,8 +319,16 @@ export default {
         driver: '',
         operator: '',
         remark: '',
-        id: ''
+        id: '',
+        oid: ''
       },
+      service: {
+        id: '',
+        name: '',
+        operator: '',
+        server: null
+      },
+      row: null,
       save: {
         name: '',
         serial: '',
@@ -302,7 +341,8 @@ export default {
         linkaddress: '',
         operator: '',
         totalprice: '',
-        id: ''
+        id: '',
+        oid: ''
       },
       totalprice: 0,
       name: '',
@@ -322,6 +362,7 @@ export default {
       dialogFormVisible: false,
       dialogFormVisibleSign: false,
       dialogFormSign: false,
+      dialogFormServer: false,
       dialogStatus: '',
       textMap: {
         update: '编辑',
@@ -339,6 +380,7 @@ export default {
     this.getList()
     createcarcommon().then(res => {
       this.recetype = res.data.recetype
+      this.car = res.data.car
     })
   },
   methods: {
@@ -356,8 +398,54 @@ export default {
           this.listLoading = false
         })
     },
+    checkCommon() {
+
+    },
+    getCommon(v) {
+      const data = { id: this.service.id }
+      servicesCommon(data).then(res => {
+        this.server = res.data.services
+        const data = {
+          type: v,
+          server: this.server
+        }
+        this.$refs.server.showService(data)
+        this.$refs.server.editService(res.data.servicesOrder)
+      })
+    },
+    handleServer(v) {
+      this.service.id = v.id
+      this.service.name = v.name
+      this.service.operator = v.operator
+      this.getCommon(1)
+      console.log(this.$refs.server)
+      this.dialogFormServer = true
+    },
+    service_data(data) {
+      this.service.server = data
+    },
+    handleSend() {
+      servicesAdd(this.service).then(res => {
+        this.getList()
+        this.dialogFormServer = false
+        this.$notify.success({
+          title: '成功',
+          message: '付款成功'
+        })
+      })
+    },
+    CarBind(id) {
+      for (const i of this.car) {
+        if (i.id === id) {
+          this.send.driver = i.chauffeur
+          this.send.totalprice = i.price
+          break
+        }
+      }
+    },
     handleClick(tab, event) {
       this.index = parseInt(tab.index) + 1
+      this.checkCommonFn()
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -366,6 +454,12 @@ export default {
     sign_open() {
       this.record_sign = ''
       this.dialogFormVisibleSign = true
+      this.$nextTick(() => {
+        this.$refs.child.initDevice()
+      })
+    },
+    sign_close() {
+      this.$refs.child.uninitDevice()
     },
     cancel() {
       this.dialogFormVisibleSign = false
@@ -376,29 +470,106 @@ export default {
     open() {
       this.dialogFormSign = true
     },
-    handleCheckinfo(v) {
-      this.save.id = v.id
-      this.send.id = v.id
+    async handleCheckinfo(v) {
+      this.row = v
+      await this.checkCommonFn()
+      await this.showcheck()
+    },
+    showcheck() {
       this.dialogFormCheck = true
     },
+    checkCommonFn() {
+      const data = { id: this.row.id, type: this.index }
+      checkCommon(data).then(res => {
+        this.rest()
+        if (res.data) {
+          if (this.index == 1) {
+            this.save = Object.assign({}, res.data)
+          } else {
+            this.send = Object.assign({}, res.data)
+          }
+        } else {
+          if (this.index == 1) {
+            this.save.name = this.row.name
+            this.save.linkman = this.row.linkman
+            this.save.sex = this.row.sex
+            this.save.linkphone = this.row.linkphone
+          } else {
+            console.log(this.row)
+            this.send.sex = this.row.sex
+            this.send.name = this.row.name
+            this.send.linkman = this.row.linkman
+            this.send.linkphone = this.row.linkphone
+          }
+        }
+      })
+    },
+    rest() {
+      this.save = {
+        name: '',
+        serial: '',
+        startime: null,
+        endtime: null,
+        signature: '',
+        card: '',
+        linkman: '',
+        linkphone: '',
+        linkaddress: '',
+        operator: '',
+        totalprice: '',
+        id: '',
+        oid: ''
+      }
+      this.send = {
+        name: '',
+        sex: '',
+        age: '',
+        address: '',
+        cid: '',
+        recetype: '',
+        outtime: null,
+        linkman: '',
+        totalprice: '',
+        linkphone: '',
+        driver: '',
+        operator: '',
+        remark: '',
+        id: '',
+        oid: ''
+      }
+    },
     createGoData() {
+      this.save.oid = this.row.id
+      this.send.oid = this.row.id
       if (this.index == 1) {
         const data = {
           step: this.index,
           save: this.save
         }
-        console.log(data)
         financecheck(data).then(res => {
-          console.log(res)
+          if (res.code == 0) {
+            this.getList()
+            this.dialogFormCheck = false
+            this.$notify.success({
+              title: '成功',
+              message: '付款成功'
+            })
+          }
         })
       } else {
         const data = {
           step: this.index,
           send: this.send
         }
-        console.log(data)
         financecheck(data).then(res => {
-          console.log(res)
+          if (res.code == 0) {
+            this.getList()
+            this.dialogFormCheck = false
+            this.$notify.success({
+              title: '成功',
+              message: '付款成功'
+            })
+          }
         })
       }
     },
@@ -414,13 +585,16 @@ export default {
       const data = { id: row.id }
       financeInfo(data)
         .then(res => {
-          var server = res.data.services
-          var temparr_b = []
-          server.forEach((v, k) => {
-            temparr_b.push(v.services)
-          })
-          temparr_b = [].concat.apply([], temparr_b)
-          this.info_list = temparr_b
+          var server = res.data.branchList
+          // var temparr_b = []
+          var servers = Object.values(server)
+          console.log(servers)
+          // servers.forEach((v, k) => {
+          //   temparr_b.push(v.services)
+          // })
+          // temparr_b = [].concat.apply([], temparr_b)
+
+          // this.info_list = temparr_b
           this.info_temp = res.data.obituary
           this.record_ifsign = res.data.obituary.record_ifsign
           this.record_sign = res.data.obituary.record_sign

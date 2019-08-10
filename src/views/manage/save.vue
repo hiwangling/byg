@@ -214,10 +214,11 @@
           </el-col>
         </el-row>
       </div>
+
       <div class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
         <h1 class="bury_car_h1" style="background:#23C6C8;color:#fff">寄存记录</h1>
         <el-row :gutter="20">
-          <div v-for="(item,index) in information.finance_list" :key="index">
+          <div v-for="(item,index) in informationServer" :key="index">
             <el-col :span="8">
               <div class="grid-content">
                 <p> {{ item.state_name }}</p>
@@ -254,6 +255,7 @@ export default {
     return {
       list: null,
       total: 0,
+      informationServer: null,
       information: {
         name: '',
         linkman: '',
@@ -357,8 +359,10 @@ export default {
       checkinfo(data)
         .then(res => {
           this.dialogFormVisibleInfo = true
-          this.information = res.data
-          console.log(this.information)
+          this.$nextTick(() => {
+            this.information = res.data
+            this.informationServer = this.information.finance_list.data
+          })
           // console.log(res)
         })
         .catch((res) => {

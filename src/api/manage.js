@@ -235,7 +235,27 @@ export function financecheck(data) {
     data
   })
 }
-
+export function checkCommon(data) {
+  return request({
+    url: '/finance/checkCommon',
+    method: 'post',
+    data
+  })
+}
+export function servicesCommon(data) {
+  return request({
+    url: '/finance/services',
+    method: 'post',
+    data
+  })
+}
+export function servicesAdd(data) {
+  return request({
+    url: '/finance/servicesAdd',
+    method: 'post',
+    data
+  })
+}
 // WX
 export function driver(data) {
   return request({
