@@ -228,6 +228,14 @@ export function financePay(data) {
     data
   })
 }
+export function financecheck(data) {
+  return request({
+    url: '/finance/check',
+    method: 'post',
+    data
+  })
+}
+
 // WX
 export function driver(data) {
   return request({

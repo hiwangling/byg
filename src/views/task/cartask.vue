@@ -67,7 +67,7 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="900px">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <div class="bury_car">
         <h1 class="bury_car_h1">逝者信息</h1>
         <el-row :gutter="20">

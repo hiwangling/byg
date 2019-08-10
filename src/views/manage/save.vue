@@ -169,6 +169,9 @@
         <el-form-item label="联系人" prop="linkman">
           <el-input v-model="dataForm.linkman" />
         </el-form-item>
+        <el-form-item label="身份证" prop="card">
+          <el-input v-model="dataForm.card" />
+        </el-form-item>
         <el-form-item label="联系电话" prop="linkphone">
           <el-input v-model="dataForm.linkphone" />
         </el-form-item>
@@ -187,7 +190,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="查看" :visible.sync="dialogFormVisibleInfo" width="900px">
+    <el-dialog title="查看" :visible.sync="dialogFormVisibleInfo">
       <div class="bury_car">
         <h1 class="bury_car_h1">逝者信息</h1>
         <el-row :gutter="20">
@@ -275,6 +278,7 @@ export default {
         endtime: null,
         signature: '',
         linkman: '',
+        card: '',
         linkphone: '',
         linkaddress: '',
         operator: '',
@@ -335,16 +339,17 @@ export default {
     },
     resetForm() {
       this.dataForm = {
-        serial: '1234',
-        name: '张三',
+        serial: '',
+        name: '张',
         startime: null,
         endtime: null,
         signature: '',
-        linkman: '我',
-        linkphone: '1211',
-        linkaddress: '无',
+        linkman: '',
+        card: '',
+        linkphone: '',
+        linkaddress: '',
         operator: '',
-        totalprice: '100'
+        totalprice: ''
       }
     },
     handleInfo(row) {

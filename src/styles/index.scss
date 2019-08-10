@@ -194,7 +194,8 @@ aside {
   padding: 10px 20px;
 }
 .el-dialog{
-  margin-top:5vh!important
+  margin-top:5vh!important;
+  min-width: 740px;
 }
 .el-dialog__body{
   padding: 0px 20px 10px 20px;

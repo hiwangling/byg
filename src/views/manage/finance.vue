@@ -42,9 +42,9 @@
           <el-tag type="danger">{{ scope.row.status == 1 ? '未支付' : '' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding" width="160">
+      <el-table-column align="center" label="操作" class-name="small-padding" width="200">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handlePayInfo(scope.row)">骨灰</el-button>
+          <el-button type="primary" size="mini" icon="el-icon-truck" @click="handleCheckinfo(scope.row)">骨灰</el-button>
           <el-button type="primary" size="mini" icon="el-icon-search" @click="handleInfo(scope.row)">详情</el-button>
         </template>
       </el-table-column>
@@ -56,7 +56,117 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
-    <el-dialog title="查看" :visible.sync="dialogFormInfo" width="900px">
+    <el-dialog title="骨灰操作" :visible.sync="dialogFormCheck">
+      <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+        <el-tab-pane label="骨灰寄存" name="first">
+          <el-form
+            ref="save"
+            :inline="true"
+            :model="save"
+            status-icon
+            label-position="left"
+            label-width="100px"
+          >
+            <el-form-item label="寄存编号" prop="serial">
+              <el-input v-model="save.serial" />
+            </el-form-item>
+            <el-form-item label="逝者姓名" prop="name">
+              <el-input v-model="save.name" />
+            </el-form-item>
+            <el-form-item label="开始时间" prop="startime">
+              <el-date-picker
+                v-model="save.startime"
+                style="width:180px"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+              />
+            </el-form-item>
+            <el-form-item label="结束时间" prop="endtime">
+              <el-date-picker
+                v-model="save.endtime"
+                style="width:180px"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+              />
+            </el-form-item>
+            <el-form-item label="联系人" prop="linkman">
+              <el-input v-model="save.linkman" />
+            </el-form-item>
+            <el-form-item label="身份证" prop="linkman">
+              <el-input v-model="save.card" />
+            </el-form-item>
+            <el-form-item label="联系电话" prop="linkphone">
+              <el-input v-model="save.linkphone" />
+            </el-form-item>
+            <el-form-item label="联系地址" prop="linkaddress">
+              <el-input v-model="save.linkaddress" />
+            </el-form-item>
+            <el-form-item label="寄存价格" prop="totalprice">
+              <el-input v-model="save.totalprice" />
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="送骨灰" name="second">
+          <el-form
+            ref="send"
+            :inline="true"
+            :model="send"
+            status-icon
+            label-position="left"
+            label-width="100px"
+          >
+            <el-form-item label="逝者姓名" prop="name">
+              <el-input v-model="send.name" />
+            </el-form-item>
+            <el-form-item label="性别" prop="sex">
+              <el-input v-model="send.sex" />
+            </el-form-item>
+            <el-form-item label="年龄" prop="age">
+              <el-input v-model="send.age" />
+            </el-form-item>
+            <el-form-item label="地址" prop="address">
+              <el-input v-model="send.address" />
+            </el-form-item>
+            <el-form-item label="出车时间" prop="outtime">
+              <el-date-picker
+                v-model="send.outtime"
+                style="width:185px"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+              />
+            </el-form-item>
+            <el-form-item label="联系人" prop="linkman">
+              <el-input v-model="send.linkman" />
+            </el-form-item>
+            <el-form-item label="联系电话" prop="linkphone">
+              <el-input v-model="send.linkphone" />
+            </el-form-item>
+            <el-form-item label="司机" prop="driver">
+              <el-input v-model="send.driver" />
+            </el-form-item>
+            <el-form-item label="接运类型" prop="recetype">
+              <el-select v-model="send.recetype" placeholder="" clearable class="filter-item" style="width:185px">
+                <el-option v-for="(item,value,index) in recetype" :key="index" :label="item" :value="Number(value)" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="接运价格" prop="totalprice">
+              <el-input v-model="send.totalprice" />
+            </el-form-item>
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="send.remark" />
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+      </el-tabs>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="createGoData">确定</el-button>
+        <el-button @click="dialogFormCheck = false">取消</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="查看" :visible.sync="dialogFormInfo">
       <div class="bury_car">
         <h1 class="bury_car_h1">逝者信息</h1>
         <el-row :gutter="20">
@@ -132,7 +242,7 @@
   </div>
 </template>
 <script>
-import { financeList, financeInfo, financePay, signobituary } from '@/api/manage'
+import { financeList, financeInfo, financePay, createcarcommon, financecheck } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import sign from '@/components/Sign'
 import { vuexData } from '@/utils/mixin'
@@ -143,10 +253,13 @@ export default {
   data() {
     return {
       list: null,
+      recetype: null,
+      index: 1,
       record_sign: '',
       signatureid: '',
       record_ifsign: '',
       info_list: null,
+      activeName: 'first',
       info_temp: {
         name: '',
         sex: '',
@@ -162,6 +275,35 @@ export default {
         linkphone: '',
         operator: ''
       },
+      send: {
+        name: '',
+        sex: '',
+        age: '',
+        address: '',
+        recetype: '',
+        outtime: null,
+        linkman: '',
+        totalprice: '',
+        linkphone: '',
+        driver: '',
+        operator: '',
+        remark: '',
+        id: ''
+      },
+      save: {
+        name: '',
+        serial: '',
+        startime: null,
+        endtime: null,
+        signature: '',
+        card: '',
+        linkman: '',
+        linkphone: '',
+        linkaddress: '',
+        operator: '',
+        totalprice: '',
+        id: ''
+      },
       totalprice: 0,
       name: '',
       oid: '',
@@ -175,6 +317,7 @@ export default {
         sort: 'add_time',
         order: 'desc'
       },
+      dialogFormCheck: false,
       dialogFormInfo: false,
       dialogFormVisible: false,
       dialogFormVisibleSign: false,
@@ -194,6 +337,9 @@ export default {
   computed: {},
   created() {
     this.getList()
+    createcarcommon().then(res => {
+      this.recetype = res.data.recetype
+    })
   },
   methods: {
     getList() {
@@ -209,6 +355,9 @@ export default {
           this.total = 0
           this.listLoading = false
         })
+    },
+    handleClick(tab, event) {
+      this.index = parseInt(tab.index) + 1
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -227,8 +376,31 @@ export default {
     open() {
       this.dialogFormSign = true
     },
-    handlePayInfo(v) {
-      console.log(v)
+    handleCheckinfo(v) {
+      this.save.id = v.id
+      this.send.id = v.id
+      this.dialogFormCheck = true
+    },
+    createGoData() {
+      if (this.index == 1) {
+        const data = {
+          step: this.index,
+          save: this.save
+        }
+        console.log(data)
+        financecheck(data).then(res => {
+          console.log(res)
+        })
+      } else {
+        const data = {
+          step: this.index,
+          send: this.send
+        }
+        console.log(data)
+        financecheck(data).then(res => {
+          console.log(res)
+        })
+      }
     },
     handleInfo(row) {
       this.signatureid = row.id

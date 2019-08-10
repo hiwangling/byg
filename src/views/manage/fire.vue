@@ -321,7 +321,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="查看" :visible.sync="dialogFormVisibleInfo" width="900px">
+    <el-dialog title="查看" :visible.sync="dialogFormVisibleInfo">
       <h3 style="text-align: center;font-size:22px;font-weight: 100; margin: 0 0 15px 0">当阳市殡仪馆火化及申请书</h3>
       <div class="bury_car">
         <h1 class="bury_car_h1">逝者信息</h1>
