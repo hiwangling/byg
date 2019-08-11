@@ -42,7 +42,7 @@
           <el-tag type="danger">{{ scope.row.status == 1 ? '未支付' : '' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding" width="250">
+      <el-table-column align="center" label="操作" class-name="small-padding" width="260">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" icon="el-icon-truck" @click="handleCheckinfo(scope.row)">骨灰</el-button>
           <el-button type="primary" size="mini" icon="el-icon-search" @click="handleInfo(scope.row)">详情</el-button>
@@ -216,10 +216,153 @@
           </el-col>
         </el-row>
       </div>
-      <div v-if="info_list ? info_list.length > 0 : false" class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
-        <h1 class="bury_car_h1" style="background:#23C6C8;color:#fff">所选服务</h1>
+      <div class="bury_car" style="border:1px solid #23C6C8;margin-top:10px;">
+        <h1 class="bury_car_h1" style="background:#23C6C8;color:#fff">接运业务</h1>
+        <el-divider content-position="left">出车信息</el-divider>
+        <el-row v-if="carsend" :gutter="20">
+          <el-col :span="8">
+            <div class="grid-content">
+              <p><span> 接运类型 : </span>{{ carsend.recetype == 1 ? '接遗体' : '送骨灰' }}</p>
+              <p><span> 联系人 : </span>{{ carsend.linkman }}</p>
+              <p><span> 接运价格 : </span>{{ carsend.totalprice }}</p>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="grid-content">
+              <p><span> 出车司机 : </span>{{ carsend.driver }}</p>
+              <p><span> 联系电话 : </span>{{ carsend.linkphone }}</p>
+              <p><span> 操作人 : </span>{{ carsend.operator }}</p>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="grid-content">
+              <p><span> 出车时间 : </span>{{ carsend.create_time }}</p>
+              <p><span> 备注 : </span>{{ carsend.remark }}</p>
+            </div>
+          </el-col>
+        </el-row>
+        <template v-if="serlist.send ? serlist.send.length > 0 : false">
+          <el-divider content-position="left">接运服务</el-divider>
+          <el-row :gutter="20">
+            <div v-for="(item,index) in serlist.send" :key="index">
+              <el-col :span="8">
+                <div class="grid-content">
+                  <p><span> 服务名称 : </span>{{ item.title }}</p>
+                </div>
+              </el-col>
+              <el-col :span="8">
+                <div class="grid-content">
+                  <p><span> 数量 : </span>{{ item.number }}</p>
+                </div>
+              </el-col>
+              <el-col :span="8">
+                <div class="grid-content">
+                  <p><span> 合计 : </span>{{ item.totalprice }}</p>
+                </div>
+              </el-col>
+            </div>
+          </el-row>
+        </template>
+      </div>
+
+      <div class="bury_car" style="border:1px solid #63afde;margin-top:10px;">
+        <h1 class="bury_car_h1" style="background:#63afde;color:#fff">礼厅业务</h1>
+        <template v-if="mourn">
+          <el-divider content-position="left">灵堂服务</el-divider>
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 灵堂名称 : </span>{{ mourn.title }}</p>
+                <p><span> 价格 : </span>{{ mourn.price }}</p>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 开始时间 : </span>{{ mourn.startime }}</p>
+                <p><span> 备注 : </span>{{ mourn.remark }}</p>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 结束时间 : </span>{{ mourn.endtime }}</p>
+                <p><span> 操作人 : </span>{{ mourn.operator }}</p>
+              </div>
+            </el-col>
+          </el-row>
+        </template>
+        <template v-if="cold">
+          <el-divider content-position="left">冷藏柜</el-divider>
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 冷藏柜名称 : </span>{{ cold.title }}</p>
+                <p><span> 价格 : </span>{{ cold.price }}</p>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 开始时间 : </span>{{ cold.startime }}</p>
+                <p><span> 备注 : </span>{{ cold.remark }}</p>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 结束时间 : </span>{{ cold.endtime }}</p>
+                <p><span> 操作人 : </span>{{ cold.operator }}</p>
+              </div>
+            </el-col>
+          </el-row>
+        </template>
+        <template v-if="serlist.voca ? serlist.voca.length > 0 : false">
+          <el-divider content-position="left">礼厅服务</el-divider>
+          <el-row :gutter="20">
+            <div v-for="(item,index) in serlist.voca" :key="index">
+              <el-col :span="8">
+                <div class="grid-content">
+                  <p><span> 服务名称 : </span>{{ item.title }}</p>
+                </div>
+              </el-col>
+              <el-col :span="8">
+                <div class="grid-content">
+                  <p><span> 数量 : </span>{{ item.number }}</p>
+                </div>
+              </el-col>
+              <el-col :span="8">
+                <div class="grid-content">
+                  <p><span> 合计 : </span>{{ item.totalprice }}</p>
+                </div>
+              </el-col>
+            </div>
+          </el-row>
+        </template>
+      </div>
+
+      <div v-if="serlist.fire ? serlist.fire.length > 0 : false" class="bury_car" style="border:1px solid #63afde;margin-top:10px;">
+        <h1 class="bury_car_h1" style="background:#63afde;color:#fff">火化业务</h1>
         <el-row :gutter="20">
-          <div v-for="(item,index) in info_list" :key="index">
+          <div v-for="(item,index) in serlist.fire" :key="index">
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 服务名称 : </span>{{ item.title }}</p>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 数量 : </span>{{ item.number }}</p>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content">
+                <p><span> 合计 : </span>{{ item.totalprice }}</p>
+              </div>
+            </el-col>
+          </div>
+        </el-row>
+      </div>
+      <div v-if="serlist.hall ? serlist.hall.length > 0 : false" class="bury_car" style="border:1px solid #63afde;margin-top:10px;">
+        <h1 class="bury_car_h1" style="background:#63afde;color:#fff">大厅业务</h1>
+        <el-row :gutter="20">
+          <div v-for="(item,index) in serlist.hall" :key="index">
             <el-col :span="8">
               <div class="grid-content">
                 <p><span> 服务名称 : </span>{{ item.title }}</p>
@@ -344,6 +487,15 @@ export default {
         id: '',
         oid: ''
       },
+      serlist: {
+        send: null,
+        voca: null,
+        fire: null,
+        hall: null
+      },
+      carsend: null,
+      mourn: null,
+      cold: null,
       totalprice: 0,
       name: '',
       oid: '',
@@ -586,20 +738,27 @@ export default {
       financeInfo(data)
         .then(res => {
           var server = res.data.branchList
-          // var temparr_b = []
           var servers = Object.values(server)
-          console.log(servers)
-          // servers.forEach((v, k) => {
-          //   temparr_b.push(v.services)
-          // })
-          // temparr_b = [].concat.apply([], temparr_b)
 
-          // this.info_list = temparr_b
+          this.carsend = servers[0].carsend[0]
+          this.mourn = servers[1].record.mourn ? servers[1].record.mourn : null
+          this.cold = servers[1].record.cold ? servers[1].record.cold : null
+          Object.keys(this.serlist).forEach((v, k) => {
+            this.serlist[v] = this.solo(servers[k])
+          })
+
           this.info_temp = res.data.obituary
           this.record_ifsign = res.data.obituary.record_ifsign
           this.record_sign = res.data.obituary.record_sign
           this.dialogFormInfo = true
         })
+    },
+    solo(arr) {
+      var editRow = []
+      arr.services.forEach((v, k) => {
+        editRow.push(v.services)
+      })
+      return [].concat.apply([], editRow)
     },
     handlePay(row) {
       this.$confirm('是否付款?', '提示', {

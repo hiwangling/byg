@@ -280,7 +280,7 @@ aside {
   display: block;
   height: 1px;
   width: 100%;
-  margin: 24px 0;
+  margin: 20px 0;
 }
 
 .el-divider {
@@ -289,6 +289,7 @@ aside {
 }
 .el-divider__text.is-left {
   left: 20px;
+  color: #de7474;
   transform: translateY(-50%);
 }
 
@@ -310,7 +311,7 @@ border-radius: 5px;
   line-height: 40px;
   background: #F5F5F5;
   font-size: 16px;
-  font-weight: 100;
+ 
   margin: 0;
   padding-left: 10px;
 }
