@@ -6,7 +6,7 @@ const statsRouter = {
   path: '/check',
   component: Layout,
   alwaysShow: true,
-  name: 'VueSetting',
+  name: 'VueStats',
   meta: { title: '统计分析', icon: 'component' },
   children: [
     {
@@ -21,7 +21,7 @@ const statsRouter = {
     },
     {
       path: '/stats/sends',
-      name: 'Vuecarsend',
+      name: 'Vuecarsends',
       component: () => import('@/views/stats/carsend'),
       meta: {
         title: '接运统计',
