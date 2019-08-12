@@ -206,6 +206,14 @@ export function checkinfo(query) {
     params: query
   })
 }
+export function checkSign(data) {
+  return request({
+    url: '/check/sign',
+    method: 'post',
+    data
+  })
+}
+
 // 业务结算
 export function financeList(data) {
   return request({
@@ -252,6 +260,34 @@ export function servicesCommon(data) {
 export function servicesAdd(data) {
   return request({
     url: '/finance/servicesAdd',
+    method: 'post',
+    data
+  })
+}
+export function derateAdd(data) {
+  return request({
+    url: '/finance/derateAdd',
+    method: 'post',
+    data
+  })
+}
+export function derateCommon(data) {
+  return request({
+    url: '/finance/derateCommon',
+    method: 'post',
+    data
+  })
+}
+export function carsendEdit(data) {
+  return request({
+    url: '/finance/carsendEdit',
+    method: 'post',
+    data
+  })
+}
+export function carsendSerEdit(data) {
+  return request({
+    url: '/finance/carsendSerEdit',
     method: 'post',
     data
   })

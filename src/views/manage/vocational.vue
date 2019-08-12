@@ -332,21 +332,20 @@
         </el-row>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" icon="el-icon-search" @click="open">查看</el-button>
-        <el-button v-if="ifsignature == 0" type="primary" @click="sign_open">签字</el-button>
-        <el-button v-if="ifsignature == 0" type="primary" @click="SignSend">确定</el-button>
+        <span v-if="record_sign" class="sign_">家属签字：<img :src="record_sign" alt="" @click="dialogFormSign = true"> </span>
+        <el-button v-if="record_ifsign == 0" type="primary" @click="sign_open">签字</el-button>
+        <el-button v-if="record_ifsign == 0" type="primary" @click="SignSend">确定</el-button>
         <el-button @click="dialogFormVisibleInfo = false">取消</el-button>
       </div>
     </el-dialog>
 
     <box ref="box" @box_data="box_data" />
 
-    <el-dialog title="签名" :visible.sync="dialogFormVisibleSign">
-      <sign @cancel="cancel" @imgData="imgData" />
+    <el-dialog title="签名" :visible.sync="dialogFormVisibleSign" @close="sign_close">
+      <e560 ref="child" @cancel="cancel" @imgData="imgData" />
     </el-dialog>
     <el-dialog title="查看签名" :visible.sync="dialogFormSign">
-      <img v-if="signature" :src="signature" alt="">
-      <span v-else class="sign">暂无签名</span>
+      <img :src="record_sign" alt="">
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormSign = false">取消</el-button>
       </div>
@@ -367,10 +366,11 @@ import Pagination from '@/components/Pagination'
 import box from '@/components/Box'
 import service from '@/components/Service'
 import sign from '@/components/Sign'
+import e560 from '@/components/E560'
 import { vuexData } from '@/utils/mixin'
 export default {
   name: 'VueGarden',
-  components: { Pagination, box, service, sign },
+  components: { Pagination, box, service, sign, e560 },
   mixins: [vuexData],
   data() {
     var validateDate = (rule, value, callback) => {
@@ -400,9 +400,11 @@ export default {
       flag: true,
       EditServer: null,
       InfoServer: null,
-      ifsignature: '',
+
       signatureid: '',
-      signature: '',
+
+      record_sign: '',
+      record_ifsign: '',
       mourn: null,
       cold: null,
       server: null,
@@ -533,17 +535,22 @@ export default {
           this.listLoading = false
         })
     },
+
     sign_open() {
+      this.record_sign = ''
       this.dialogFormVisibleSign = true
+      this.$nextTick(() => {
+        this.$refs.child.initDevice()
+      })
+    },
+    sign_close() {
+      this.$refs.child.uninitDevice()
     },
     cancel() {
       this.dialogFormVisibleSign = false
     },
     imgData(v) {
-      this.signature = v
-    },
-    open() {
-      this.dialogFormSign = true
+      this.record_sign = v
     },
     getCommon(v) {
       getobituary().then(res => {
@@ -569,7 +576,7 @@ export default {
     },
 
     SignSend() {
-      const data = { signature: this.signature, id: this.signatureid }
+      const data = { signature: this.record_sign, id: this.signatureid }
       signobituary(data).then(res => {
         if (res.code == 0) {
           this.$notify.success({
@@ -664,8 +671,8 @@ export default {
         this.InfoServer = [].concat.apply([], editRow)
         this.infodataForm = res.data
         this.signatureid = row.id
-        this.signature = row.signature
-        this.ifsignature = row.ifsignature
+        this.record_sign = row.signature
+        this.record_ifsign = row.ifsignature
         this.dialogFormVisibleInfo = true
       })
     },

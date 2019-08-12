@@ -378,12 +378,21 @@
         </el-row>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-input v-if="ifsignature == 0" v-model="signature" style="width:150px" placeholder="输入签名" />
-        <el-button v-if="ifsignature == 0" type="primary" @click="SignSend">确定</el-button>
+        <span class="sign_">家属签字：<img v-if="record_sign" :src="record_sign" alt="" @click="dialogFormSign = true"> </span>
+        <el-button v-if="record_ifsign == 0" type="primary" @click="sign_open">签字</el-button>
+        <el-button v-if="record_ifsign == 0" type="primary" @click="SignSend">确定</el-button>
         <el-button @click="dialogFormVisibleInfo = false">取消</el-button>
       </div>
     </el-dialog>
-
+    <el-dialog title="签名" :visible.sync="dialogFormVisibleSign" @close="sign_close">
+      <e560 ref="child" @cancel="cancel" @imgData="imgData" />
+    </el-dialog>
+    <el-dialog title="查看签名" :visible.sync="dialogFormSign">
+      <img :src="record_sign" alt="">
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormSign = false">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -402,22 +411,27 @@ import {
 import Pagination from '@/components/Pagination'
 import service from '@/components/Service'
 import { vuexData } from '@/utils/mixin'
+import e560 from '@/components/E560'
 export default {
   name: 'VueGarden',
-  components: { Pagination, service },
+  components: { Pagination, service, e560 },
   mixins: [vuexData],
   data() {
     return {
       list: null,
       total: 0,
       recetype: null,
-      signature: '',
-      ifsignature: '',
+      // signature: '',
+      // ifsignature: '',
       signatureid: '',
+      record_sign: '',
+      record_ifsign: '',
       activeName: 'info',
       dialogFormVisibleGo: false,
       dialogFormVisibleInfo: false,
       dialogFormVisibleSave: false,
+      dialogFormVisibleSign: false,
+      dialogFormSign: false,
       listLoading: true,
       listQuery: {
         page: 1,
@@ -531,6 +545,24 @@ export default {
         this.$refs.server.showService(data)
       })
     },
+
+    sign_open() {
+      this.record_sign = ''
+      this.dialogFormVisibleSign = true
+      this.$nextTick(() => {
+        this.$refs.child.initDevice()
+      })
+    },
+    sign_close() {
+      this.$refs.child.uninitDevice()
+    },
+    cancel() {
+      this.dialogFormVisibleSign = false
+    },
+    imgData(v) {
+      this.record_sign = v
+    },
+
     handleSign(row) {
       this.dataForm = Object.assign({}, row)
       const data = { id: row.id, oid: row.oid, type: 2 }
@@ -542,7 +574,8 @@ export default {
         this.server = server
         this.dialogFormVisibleInfo = true
         this.signatureid = row.id
-        this.ifsignature = row.ifsignature
+        this.record_sign = row.signature
+        this.record_ifsign = row.ifsignature
       })
     },
     service_data(data) {
@@ -778,7 +811,7 @@ export default {
 
     },
     SignSend() {
-      const data = { signature: this.signature, id: this.signatureid }
+      const data = { signature: this.record_sign, id: this.signatureid }
       signfire(data).then(res => {
         if (res.code == 0) {
           this.$notify.success({

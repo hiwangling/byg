@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="listQuery.keyword"
+        v-model="listQuery.search_data"
         clearable
         class="filter-item"
         style="width: 200px;"

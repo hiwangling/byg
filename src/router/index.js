@@ -7,6 +7,7 @@ import Layout from '@/layout'
 import memberRouter from './modules/member'
 import manageRouter from './modules/manage'
 import settingRouter from './modules/setting'
+import statsRouter from './modules/stats'
 import taskRouter from './modules/task'
 export const constantRoutes = [
   {
@@ -57,6 +58,7 @@ export const constantRoutes = [
 
 export const asyncRoutes = [
   manageRouter,
+  statsRouter,
   settingRouter,
   taskRouter,
   memberRouter,

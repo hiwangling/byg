@@ -395,9 +395,9 @@ export default {
           server = res.data.services[0].services
         }
         this.server = server
+        this.dialogStatus = 'update'
+        this.dialogFormVisible = true
       })
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
     }
   }
 }

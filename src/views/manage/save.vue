@@ -120,8 +120,10 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisibleTake = false">取消</el-button>
+        <span v-if="record_sign" class="sign_">家属签字：<img :src="record_sign" alt="" @click="dialogFormSign = true"> </span>
+        <el-button type="primary" @click="sign_open">签字</el-button>
         <el-button type="primary" @click="TakeData">确定</el-button>
+        <el-button @click="dialogFormVisibleTake = false">取消</el-button>
       </div>
     </el-dialog>
 
@@ -238,23 +240,40 @@
         </el-row>
       </div>
       <div slot="footer" class="dialog-footer">
+        <span v-if="record_sign" class="sign_">家属签字：<img :src="record_sign" alt="" @click="dialogFormSign = true"> </span>
+        <el-button v-if="record_ifsign == 0" type="primary" @click="sign_open">签字</el-button>
+        <el-button v-if="record_ifsign == 0" type="primary" @click="SignSend">确定</el-button>
         <el-button @click="dialogFormVisibleInfo = false">取消</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="签名" :visible.sync="dialogFormVisibleSign" @close="sign_close">
+      <e560 ref="child" @cancel="cancel" @imgData="imgData" />
+    </el-dialog>
+    <el-dialog title="查看签名" :visible.sync="dialogFormSign">
+      <img :src="record_sign" alt="">
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormSign = false">取消</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import { checklist, checkadd, checkedit, checkrenew, checktake, checkinfo } from '@/api/manage'
+import { checklist, checkadd, checkedit, checkrenew, checktake, checkinfo, checkSign } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import { vuexData } from '@/utils/mixin'
+import e560 from '@/components/E560'
 export default {
   name: 'VueGarden',
-  components: { Pagination },
+  components: { Pagination, e560 },
   mixins: [vuexData],
   data() {
     return {
       list: null,
       total: 0,
+      record_sign: '',
+      record_ifsign: '',
+      signatureid: '',
       informationServer: null,
       information: {
         name: '',
@@ -304,6 +323,8 @@ export default {
       dialogFormVisibleRenew: false,
       dialogFormVisibleTake: false,
       dialogFormVisible: false,
+      dialogFormVisibleSign: false,
+      dialogFormSign: false,
       dialogStatus: '',
       textMap: {
         update: '编辑',
@@ -335,6 +356,40 @@ export default {
           this.listLoading = false
         })
     },
+    sign_open() {
+      this.record_sign = ''
+      this.dialogFormVisibleSign = true
+      this.$nextTick(() => {
+        this.$refs.child.initDevice()
+      })
+    },
+    sign_close() {
+      this.$refs.child.uninitDevice()
+    },
+    cancel() {
+      this.dialogFormVisibleSign = false
+    },
+    imgData(v) {
+      this.record_sign = v
+    },
+    SignSend() {
+      const data = { signature: this.record_sign, id: this.signatureid }
+      checkSign(data).then(res => {
+        if (res.code == 0) {
+          this.$notify.success({
+            title: '成功',
+            message: '操作成功'
+          })
+          this.getList()
+          this.dialogFormVisibleInfo = false
+        } else {
+          this.$notify.error({
+            title: '失败',
+            message: res.msg
+          })
+        }
+      })
+    },
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
@@ -356,6 +411,9 @@ export default {
     },
     handleInfo(row) {
       const data = { id: row.id }
+      this.signatureid = row.id
+      this.record_sign = row.signature
+      this.record_ifsign = row.ifsignature
       checkinfo(data)
         .then(res => {
           this.dialogFormVisibleInfo = true
@@ -363,7 +421,6 @@ export default {
             this.information = res.data
             this.informationServer = this.information.finance_list.data
           })
-          // console.log(res)
         })
         .catch((res) => {
           this.$notify.error({
@@ -380,6 +437,7 @@ export default {
     },
     handleTake(row) {
       this.take = Object.assign({}, row)
+      this.record_sign = ''
       this.dialogFormVisibleTake = true
     },
     TakeData() {
@@ -387,6 +445,7 @@ export default {
         taketime: this.take.taketime,
         takename: this.take.takename,
         id: this.take.id,
+        take_signature: this.record_sign,
         operator: this.info.realname
       }
       checktake(data)
@@ -495,23 +554,6 @@ export default {
         }
       })
     }
-    // handleDelete(row) {
-    //   deletecar(row)
-    //     .then(res => {
-    //       this.$notify.success({
-    //         title: '成功',
-    //         message: '删除成功'
-    //       })
-    //       const index = this.list.indexOf(row)
-    //       this.list.splice(index, 1)
-    //     })
-    //     .catch(res => {
-    //       this.$notify.error({
-    //         title: '失败',
-    //         message: res.msg
-    //       })
-    //     })
-    // }
   }
 }
 </script>
