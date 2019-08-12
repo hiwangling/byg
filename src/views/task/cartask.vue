@@ -168,12 +168,14 @@
         </el-tab-pane>
       </el-tabs>
       <div slot="footer" class="dialog-footer">
-        <!-- <el-button v-if="dialogStatus=='create'" type="primary" plain @click="handleShow(0)">添加服务</el-button>
-        <el-button v-else type="primary" plain @click="handleShow(1)">修改服务</el-button> -->
+        <span v-if="record_sign" class="sign_" style="bottom:20px">警察签字：<img :src="record_sign" alt="" @click="dialogFormSign = true"> </span>
+        <el-button type="primary" @click="sign_open()">签字</el-button>
         <el-button @click="dialogFormVisibleWX = false">取消</el-button>
         <el-button type="primary" @click="updateData">确定</el-button>
       </div>
-
+    </el-dialog>
+    <el-dialog title="签名" :visible.sync="dialogFormVisibleSign">
+      <sign @cancel="cancel" @imgData="imgData" />
     </el-dialog>
   </div>
 </template>
@@ -184,17 +186,19 @@ import {
   driver
 } from '@/api/manage'
 import { listCartask, editCarstatus } from '@/api/task'
+import sign from '@/components/Sign'
 import Pagination from '@/components/Pagination'
 import service from '@/components/Service'
 import { vuexData } from '@/utils/mixin'
 export default {
   name: 'VueGarden',
-  components: { Pagination, service },
+  components: { Pagination, service, sign },
   mixins: [vuexData],
   data() {
     return {
       car: null,
       recetype: null,
+      record_sign: '',
       server: null,
       activeName: 'info',
       list: null,
@@ -214,6 +218,7 @@ export default {
       },
       dialogFormVisible: false,
       dialogFormVisibleWX: false,
+      dialogFormVisibleSign: false,
       wx: {
         servertype: '',
         unknown: '0',
@@ -263,6 +268,13 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
+    },
+    imgData(v) {
+      this.record_sign = v
+    },
+    sign_open() {
+      this.record_sign = ''
+      this.dialogFormVisibleSign = true
     },
     getCommon(v) {
       createcarcommon().then(res => {
@@ -338,12 +350,14 @@ export default {
       }
     },
     service_data(data) {
-      console.log(data)
       this.wx.server = data
     },
     carState(v) {
       const statusMap = { 1: '签收', 2: '出车', 3: '出车', 4: '回馆' }
       return statusMap[v]
+    },
+    cancel() {
+      this.dialogFormVisibleSign = false
     },
     handleCarStatus(row) {
       var state = this.carState(row.state)
