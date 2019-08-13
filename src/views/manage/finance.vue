@@ -1074,7 +1074,7 @@ export default {
           oid: this.oid,
           totalprice: this.totalprice,
           operator: this.info.realname,
-          record_sign: this.record_sign_info
+          record_sign: '11'
         }
         financePay(data)
           .then(res => {
