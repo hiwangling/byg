@@ -276,7 +276,7 @@
         </template>
       </div>
       <div slot="footer" class="dialog-footer">
-        <span v-if="record_sign_info" class="sign_">家属签字：<img :src="record_sign_info" alt="" @click="dialogFormSign = true"> </span>
+        <span v-if="record_sign_info" class="sign_">家属签字：<img :src="record_sign_info" alt="" @click="open(record_sign_info)"> </span>
         <span style="color:red;font-size:14px;margin-right:10px;">总价：<b>{{ totalprice }}</b> 元</span>
         <el-button @click="dialogFormInfo = false">取消</el-button>
       </div>
@@ -395,6 +395,7 @@ export default {
           if (res.data.check) {
             this.sign_img_save = res.data.check.signature
           }
+          this.record_sign_info = servers[3].signature
           this.info_temp = res.data.obituary
           this.record_ifsign = res.data.obituary.record_ifsign
           this.record_sign = res.data.obituary.record_sign

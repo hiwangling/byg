@@ -20,6 +20,16 @@ const statsRouter = {
       }
     },
     {
+      path: '/stats/server',
+      name: 'Vuecheck',
+      component: () => import('@/views/stats/server'),
+      meta: {
+        title: '服务统计',
+        noCache: true,
+        perms: ['POST /api/v1/manager/list', 'POST /api/v1/manager/add', 'POST /api/v1/manager/edit']
+      }
+    },
+    {
       path: '/stats/sends',
       name: 'Vuecarsends',
       component: () => import('@/views/stats/carsend'),

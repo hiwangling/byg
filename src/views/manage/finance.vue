@@ -556,7 +556,7 @@
     </el-dialog>
 
     <el-dialog title="查看签名" :visible.sync="dialogFormSign">
-      <img :src="record_sign" alt="">
+      <img :src="record_sign == '' ? record_sign_info : record_sign" alt="">
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormSign = false">取消</el-button>
       </div>

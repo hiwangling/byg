@@ -43,4 +43,11 @@ export function statsunknown(data) {
     data
   })
 }
+export function statservices(data) {
+  return request({
+    url: '/statistics/services',
+    method: 'post',
+    data
+  })
+}
 
