@@ -228,7 +228,8 @@
             </el-col>
             <el-col :span="8">
               <div class="grid-content">
-                <p><span> 缴费时间 : </span>{{ item.record_create_time != '' ? item.record_create_time : '无' }}</p>
+                {{ item.paytime }}
+                <p><span> 缴费时间 : </span>{{ item.paytime }}</p>
               </div>
             </el-col>
             <el-col :span="8">

@@ -27,7 +27,7 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" label="火化编号" prop="serial" />
+      <el-table-column align="center" label="火化编号" prop="c_serial" />
       <el-table-column align="center" label="逝者姓名" prop="name">
         <template slot-scope="scope">
           {{ scope.row.name }} ({{ scope.row.sex }})
@@ -1074,8 +1074,9 @@ export default {
           oid: this.oid,
           totalprice: this.totalprice,
           operator: this.info.realname,
-          record_sign: '1'
+          record_sign: this.record_sign_info
         }
+        console.log(data)
         financePay(data)
           .then(res => {
             if (res.code == 0) {

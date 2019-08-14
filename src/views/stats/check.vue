@@ -8,6 +8,23 @@
         style="width: 200px;"
         placeholder="请输入关键字"
       />
+
+      <el-date-picker
+        v-model="listQuery.startime"
+        style="width: 200px"
+        class="filter-item"
+        type="date"
+        value-format="yyyy-MM-dd"
+        placeholder="开始时间"
+      />
+      <el-date-picker
+        v-model="listQuery.endtime"
+        style="width: 200px"
+        class="filter-item"
+        type="date"
+        value-format="yyyy-MM-dd"
+        placeholder="结束时间"
+      />
       <el-button
         v-permission="['GET /api/v1/cemetery_classify/g_list']"
         class="filter-item"
@@ -143,6 +160,8 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
+        startime: null,
+        endtime: null,
         search_data: '',
         sort: 'add_time',
         order: 'desc'

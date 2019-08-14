@@ -8,6 +8,23 @@
         style="width: 200px;"
         placeholder="请输入关键字"
       />
+
+      <el-date-picker
+        v-model="listQuery.startime"
+        style="width: 200px"
+        class="filter-item"
+        type="date"
+        value-format="yyyy-MM-dd"
+        placeholder="开始时间"
+      />
+      <el-date-picker
+        v-model="listQuery.endtime"
+        style="width: 200px"
+        class="filter-item"
+        type="date"
+        value-format="yyyy-MM-dd"
+        placeholder="结束时间"
+      />
       <el-button
         v-permission="['GET /api/v1/cemetery_classify/g_list']"
         class="filter-item"
@@ -26,15 +43,20 @@
       fit
       highlight-current-row
     >
+      <el-table-column align="center" label="火化编号" prop="c_serial" />
       <el-table-column align="center" label="火化日期" prop="c_signtime" />
-      <el-table-column align="center" label="逝者姓名" prop="name" />
-      <el-table-column align="center" label="性别" prop="sex" />
+      <el-table-column align="center" label="逝者姓名" prop="name">
+        <template slot-scope="scope">
+          {{ scope.row.name }} ({{ scope.row.sex }})
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="年龄" prop="age" />
       <el-table-column align="center" label="死因" prop="reason" />
       <el-table-column align="center" label="死亡日期" prop="dietime" />
       <el-table-column align="center" label="身份证" prop="card" />
       <el-table-column align="center" label="地址" prop="registered" />
       <el-table-column align="center" label="总价" prop="r_totalprice" />
+      <el-table-column align="center" label="支付时间" prop="r_create_time" />
       <el-table-column align="center" label="操作" class-name="small-padding" width="100">
         <template slot-scope="scope">
           <el-button
@@ -73,6 +95,8 @@ export default {
         page: 1,
         limit: 20,
         search_data: '',
+        startime: null,
+        endtime: null,
         sort: 'add_time',
         order: 'desc'
       },

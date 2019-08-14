@@ -6,7 +6,14 @@
         clearable
         class="filter-item"
         style="width: 200px;"
-        placeholder="请输入关键字"
+        placeholder="请输入逝者姓名"
+      />
+      <el-input
+        v-model="listQuery.title"
+        clearable
+        class="filter-item"
+        style="width: 200px;"
+        placeholder="请输入服务名称"
       />
       <el-date-picker
         v-model="listQuery.startime"
@@ -75,6 +82,7 @@ export default {
         startime: null,
         endtime: null,
         search_data: '',
+        title: '',
         sort: 'add_time',
         order: 'desc'
       }
