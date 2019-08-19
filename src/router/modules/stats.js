@@ -78,6 +78,26 @@ const statsRouter = {
         noCache: true,
         perms: ['POST /api/v1/manager/list', 'POST /api/v1/manager/add', 'POST /api/v1/manager/edit']
       }
+    },
+    {
+      path: '/stats/supplies',
+      name: 'Vuesupplies',
+      component: () => import('@/views/stats/supplies'),
+      meta: {
+        title: '丧葬用品统计',
+        noCache: true,
+        perms: ['POST /api/v1/manager/list', 'POST /api/v1/manager/add', 'POST /api/v1/manager/edit']
+      }
+    },
+    {
+      path: '/stats/wreath',
+      name: 'Vueswreath',
+      component: () => import('@/views/stats/wreath'),
+      meta: {
+        title: '花圈挽联统计',
+        noCache: true,
+        perms: ['POST /api/v1/manager/list', 'POST /api/v1/manager/add', 'POST /api/v1/manager/edit']
+      }
     }
   ]
 }

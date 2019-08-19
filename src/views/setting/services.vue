@@ -15,6 +15,7 @@
         class="filter-item"
         style="width:185px"
       >
+        <!-- {{ servicestype }} -->
         <el-option
           v-for="(item,value,index) in servicestype"
           :key="index"
@@ -254,9 +255,9 @@ export default {
   },
   created() {
     this.getList()
-    this.servicestype = this.servicestype.filter((v, k) => {
-      return k != 5
-    })
+    // this.servicestype = this.servicestype.filter((v, k) => {
+    //   return k != 5
+    // })
   },
   methods: {
     getList() {

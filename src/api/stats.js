@@ -50,4 +50,24 @@ export function statservices(data) {
     data
   })
 }
-
+export function statsupplies(data) {
+  return request({
+    url: '/statistics/supplies',
+    method: 'post',
+    data
+  })
+}
+export function statswreath(data) {
+  return request({
+    url: '/statistics/wreath',
+    method: 'post',
+    data
+  })
+}
+export function statswreathList(data) {
+  return request({
+    url: '/statistics/wreathList',
+    method: 'post',
+    data
+  })
+}

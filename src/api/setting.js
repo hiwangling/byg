@@ -179,7 +179,61 @@ export function getservices(query) {
     params: query
   })
 }
+// 花圈挽联
+export function listwreath(data) {
+  return request({
+    url: '/wreath/list',
+    method: 'post',
+    data
+  })
+}
 
+export function createwreath(data) {
+  return request({
+    url: '/wreath/add',
+    method: 'post',
+    data
+  })
+}
+
+export function updatewreath(data) {
+  return request({
+    url: '/wreath/edit',
+    method: 'post',
+    data
+  })
+}
+
+export function deletewreath(query) {
+  return request({
+    url: '/wreath/del',
+    method: 'get',
+    params: query
+  })
+}
+
+export function wreathList(data) {
+  return request({
+    url: '/statistics/wreathList',
+    method: 'post',
+    data
+  })
+}
+export function wreathstorage(query) {
+  return request({
+    url: '/wreath/storage',
+    method: 'get',
+    params: query
+  })
+}
+
+export function storage(query) {
+  return request({
+    url: '/supplies/storage',
+    method: 'get',
+    params: query
+  })
+}
 // 丧葬用品管理
 export function listsupplies(data) {
   return request({
@@ -213,13 +267,6 @@ export function deletesupplies(query) {
   })
 }
 
-export function storage(query) {
-  return request({
-    url: '/supplies/storage',
-    method: 'get',
-    params: query
-  })
-}
 // 服务套餐
 export function listcombo(data) {
   return request({

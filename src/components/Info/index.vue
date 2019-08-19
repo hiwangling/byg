@@ -276,7 +276,7 @@
         </template>
       </div>
       <div slot="footer" class="dialog-footer">
-        <span v-if="record_sign_info" class="sign_">家属签字：<img :src="record_sign_info" alt="" @click="open(record_sign_info)"> </span>
+        <!-- <span v-if="record_sign_info" class="sign_">家属签字：<img :src="record_sign_info" alt="" @click="open(record_sign_info)"> </span> -->
         <span style="color:red;font-size:14px;margin-right:10px;">总价：<b>{{ totalprice }}</b> 元</span>
         <el-button @click="dialogFormInfo = false">取消</el-button>
       </div>

@@ -26,7 +26,7 @@
       highlight-current-row
     >
       <el-table-column align="center" label="商品" prop="title" />
-      <el-table-column align="center" label="数量" prop="supplies_number" />
+      <el-table-column align="center" label="数量" prop="wreath_number" />
       <el-table-column align="center" label="状态" prop="status" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status | or_status">{{ scope.row.status == 0 ? '禁用' : '可用' }}</el-tag>
@@ -123,11 +123,11 @@
 </template>
 <script>
 import {
-  listsupplies,
-  createsupplies,
-  storage,
-  updatesupplies,
-  deletesupplies
+  listwreath,
+  createwreath,
+  wreathstorage,
+  updatewreath,
+  deletewreath
 } from '@/api/setting'
 import Pagination from '@/components/Pagination'
 import { vuexData } from '@/utils/mixin'
@@ -153,7 +153,7 @@ export default {
         uid: '',
         sid: '',
         price: '',
-        number: '',
+        number: 1,
         totalprice: '',
         type: '',
         title: ''
@@ -180,7 +180,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      listsupplies(this.listQuery)
+      listwreath(this.listQuery)
         .then(res => {
           this.list = res.data.data
           this.total = res.data.total || 0
@@ -202,7 +202,7 @@ export default {
         uid: '',
         sid: '',
         price: 0,
-        number: 0,
+        number: '',
         totalprice: '',
         type: '',
         title: ''
@@ -210,8 +210,8 @@ export default {
     },
     handleCreate(row) {
       this.resetForm()
-      this.totalprice = 0
       this.dataForm = Object.assign({}, row)
+      this.totalprice = 0
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -220,7 +220,7 @@ export default {
     },
     createData() {
       const data = {
-        uid: this.info.id,
+        operator: this.info.realname,
         sid: this.dataForm.id,
         price: this.dataForm.price,
         number: this.dataForm.number,
@@ -230,7 +230,7 @@ export default {
       }
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          createsupplies(data)
+          createwreath(data)
             .then(res => {
               this.getList()
               this.dialogFormVisible = false
@@ -256,7 +256,7 @@ export default {
     handleSupplies(row, type) {
       this.dialogFormVisibleList = true
       const data = { sid: type == 0 ? row.id : row.sid }
-      storage(data)
+      wreathstorage(data)
         .then(res => {
           this.supplies_list = res.data.data
           this.supplies_total = res.data.total || 0
@@ -268,11 +268,11 @@ export default {
     },
     handleUpdate(row) {
       this.dataForm = {
-        uid: this.info.id,
         id: row.id,
         sid: row.sid,
         price: row.price,
         number: row.number,
+        operator: this.info.realname,
         type: 1,
         title: row.title
       }
@@ -281,7 +281,7 @@ export default {
     },
     updateData() {
       this.dataForm.totalprice = this.totalprice
-      updatesupplies(this.dataForm)
+      updatewreath(this.dataForm)
         .then(() => {
           this.dialogFormVisible = false
           this.$notify.success({
@@ -304,7 +304,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deletesupplies(row)
+        deletewreath(row)
           .then(res => {
             const index = this.list.indexOf(row)
             this.list.splice(index, 1)

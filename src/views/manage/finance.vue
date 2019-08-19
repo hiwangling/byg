@@ -543,10 +543,11 @@
         </template>
       </div>
       <div slot="footer" class="dialog-footer">
-        <span v-if="record_sign_info" class="sign_">家属签字：<img :src="record_sign_info" alt="" @click="dialogFormSign = true"> </span>
+        <!-- <span v-if="record_sign_info" class="sign_">家属签字：<img :src="record_sign_info" alt="" @click="dialogFormSign = true"> </span> -->
         <span style="color:red;font-size:14px;margin-right:10px;">应付总价：<b>{{ totalprice }}</b> 元</span>
-        <el-button v-if="record_ifsign == 0" type="primary" @click="sign_open(1)">签字</el-button>
-        <el-button v-if="record_ifsign == 0" type="primary" :disabled="record_sign_info == '' ? true : false" @click="handlePay">付款</el-button>
+        <!-- <el-button v-if="record_ifsign == 0" type="primary" @click="sign_open(1)">签字</el-button> -->
+        <!-- v-if="record_ifsign == 0" type="primary" :disabled="record_sign_info == '' ? true : false"  -->
+        <el-button type="primary" @click="handlePay">付款</el-button>
         <el-button @click="dialogFormInfo = false">取消</el-button>
       </div>
     </el-dialog>
@@ -1076,7 +1077,6 @@ export default {
           operator: this.info.realname,
           record_sign: this.record_sign_info
         }
-        console.log(data)
         financePay(data)
           .then(res => {
             if (res.code == 0) {

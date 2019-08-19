@@ -775,7 +775,6 @@ export default {
       this.resetForm()
       this.getCommon(0)
       this.activeName = 'info'
-      this.dataForm.operator = this.info.realname
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {

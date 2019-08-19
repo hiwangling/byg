@@ -68,6 +68,16 @@ const settingRouter = {
         noCache: true,
         perms: ['POST /api/v1/manager/list', 'POST /api/v1/manager/add', 'POST /api/v1/manager/edit']
       }
+    },
+    {
+      path: '/wreath',
+      name: 'Vuewreath',
+      component: () => import('@/views/setting/wreath'),
+      meta: {
+        title: '花圈挽联',
+        noCache: true,
+        perms: ['POST /api/v1/manager/list', 'POST /api/v1/manager/add', 'POST /api/v1/manager/edit']
+      }
     }, {
       path: '/config',
       name: 'Vueconfig',
